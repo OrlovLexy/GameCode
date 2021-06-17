@@ -101,8 +101,13 @@ void AGCBaseCharacter::Tick(float DeltaSeconds)
 	}
 }
 
-void AGCBaseCharacter::Mantle()
+void AGCBaseCharacter::Mantle(bool bForce /*= false*/)
 {
+	if (!(CanMantle() || bForce))
+	{
+		return;
+	}
+
 	FLedgeDescription LedgeDescription;
 	if (LedgeDetectorComponent->DetectLedge(LedgeDescription))
 	{
@@ -136,6 +141,11 @@ void AGCBaseCharacter::Mantle()
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		AnimInstance->Montage_Play(MantlingSettings.MantlingMontage, 1.0f, EMontagePlayReturnType::Duration, MantlingParameters.StartTime);
 	}
+}
+
+bool AGCBaseCharacter::CanMantle() const
+{
+	return !GetBaseCharacterMovementComponent()->IsOnLadder();
 }
 
 bool AGCBaseCharacter::CanJumpInternal_Implementation() const
@@ -204,12 +214,12 @@ void AGCBaseCharacter::RecalculateBaseEyeHeight()
 
 void AGCBaseCharacter::RegisterInteractiveActor(AInteractiveActor* InteractiveActor)
 {
-	AvailableInteractiveActors.Add(InteractiveActor);
+	AvailableInteractiveActors.AddUnique(InteractiveActor);
 }
 
 void AGCBaseCharacter::UnregisterInteractiveActor(AInteractiveActor* InteractiveActor)
 {
-	AvailableInteractiveActors.Remove(InteractiveActor);
+	AvailableInteractiveActors.RemoveSingleSwap(InteractiveActor);
 }
 
 void AGCBaseCharacter::OnSprintStart_Implementation()
@@ -302,6 +312,10 @@ void AGCBaseCharacter::InteractWithLadder()
 		const ALadder* AvailableLadder = GetAvailableLadder();
 		if (IsValid(AvailableLadder))
 		{
+			if (AvailableLadder->GetIsOnTop())
+			{
+				PlayAnimMontage(AvailableLadder->GetAttachFromTopAnimMontage());
+			}
 			GetBaseCharacterMovementComponent()->AttachToLadder(AvailableLadder);
 		}
 	}

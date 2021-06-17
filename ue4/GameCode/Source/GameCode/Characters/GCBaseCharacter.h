@@ -66,7 +66,9 @@ public:
 
 	bool bCanJump = true;
 
-	virtual void Mantle();
+	virtual void Mantle(bool bForce = false);
+
+	bool CanMantle() const;
 
 	virtual bool CanJumpInternal_Implementation() const override;
 

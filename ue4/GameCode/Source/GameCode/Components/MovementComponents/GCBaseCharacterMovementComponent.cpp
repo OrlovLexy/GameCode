@@ -56,6 +56,13 @@ void UGCBaseCharacterMovementComponent::PhysLadder(float DeltaTime, int32 Iterat
 	CalcVelocity(DeltaTime, 1.0f, false, ClimbingOnLadderBrakingDeceleration);
 	FVector Delta = Velocity * DeltaTime;
 
+	if (HasAnimRootMotion())
+	{
+		FHitResult Hit;
+		SafeMoveUpdatedComponent(Delta, GetOwner()->GetActorRotation(), false, Hit);
+		return;
+	}
+
 	FVector NewPos = GetActorLocation() + Delta;
 	float NewPosProjection = GetActorToCurrentLadderProjection(NewPos);
 
@@ -66,7 +73,7 @@ void UGCBaseCharacterMovementComponent::PhysLadder(float DeltaTime, int32 Iterat
 	}
 	else if (NewPosProjection > (CurrentLadder->GetLadderHeight() - MaxLadderTopOffset))
 	{
-		GetBaseCharacterOwner()->Mantle();
+		GetBaseCharacterOwner()->Mantle(true);
 		return;
 	}
 
@@ -428,6 +435,11 @@ void UGCBaseCharacterMovementComponent::AttachToLadder(const ALadder* Ladder)
 
 
 	FVector NewCharacterLocation = CurrentLadder->GetActorLocation() + Projection * LadderUpVector + LadderToCharacterOffset * LadderForwardVector;
+
+	if (CurrentLadder->GetIsOnTop())
+	{
+		NewCharacterLocation = CurrentLadder->GetAttachFromTopAnimMontageStartingLocation();
+	}
 
 	GetOwner()->SetActorLocation(NewCharacterLocation);
 	GetOwner()->SetActorRotation(TargetOrientationRotation);
