@@ -39,6 +39,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character animation")
 	bool bIsSwimming = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character animation")
+	bool bIsOnLadder = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character animation")
+	float LadderSpeedRatio = 0.0f;
 
 	UPROPERTY(EditAnywhere, Transient, BlueprintReadOnly, Category = "Character|IK settings")
 	FVector RightFootEffectorLocation = FVector::ZeroVector;

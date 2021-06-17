@@ -27,6 +27,11 @@ void UGCBaseCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsProning = CharacterMovement->IsProning();
 	bIsOutOfStamina = CharacterMovement->IsOutOfStamina();
 	bIsSwimming = CharacterMovement->IsSwimming();
+	bIsOnLadder = CharacterMovement->IsOnLadder();
+	if (bIsOnLadder)
+	{
+		LadderSpeedRatio = CharacterMovement->GetLadderSpeedRatio();
+	}
 
 	RightFootEffectorLocation = FVector(CachedBaseCharacter->GetIKRightFootOffset() + CachedBaseCharacter->GetIKPelvisOffset(), 0.0f, 0.0f);
 	LeftFootEffectorLocation = FVector(-(CachedBaseCharacter->GetIKLeftFootOffset() + CachedBaseCharacter->GetIKPelvisOffset()), 0.0f, 0.0f);
