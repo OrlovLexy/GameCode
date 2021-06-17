@@ -5,6 +5,8 @@
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 #include "Curves/CurveVector.h"
+#include "../../Actors/Interactive/Environment/Ladder.h"
+#include "../../Characters/GCBaseCharacter.h"
 
 void UGCBaseCharacterMovementComponent::PhysCustom(float DeltaTime, int32 Iterations)
 {
@@ -54,6 +56,20 @@ void UGCBaseCharacterMovementComponent::PhysLadder(float DeltaTime, int32 Iterat
 	CalcVelocity(DeltaTime, 1.0f, false, ClimbingOnLadderBrakingDeceleration);
 	FVector Delta = Velocity * DeltaTime;
 
+	FVector NewPos = GetActorLocation() + Delta;
+	float NewPosProjection = GetActorToCurrentLadderProjection(NewPos);
+
+	if (NewPosProjection < MinLadderBottomOffset)
+	{
+		DetachFromLadder();
+		return;
+	}
+	else if (NewPosProjection > (CurrentLadder->GetLadderHeight() - MaxLadderTopOffset))
+	{
+		GetBaseCharacterOwner()->Mantle();
+		return;
+	}
+
 	FHitResult Hit;
 	SafeMoveUpdatedComponent(Delta, GetOwner()->GetActorRotation(), true, Hit);
 }
@@ -85,6 +101,15 @@ float UGCBaseCharacterMovementComponent::GetMaxSpeed() const
 		Result = ClimbingOnLadderMaxSpeed;
 	}
 	return Result;
+}
+
+void UGCBaseCharacterMovementComponent::PhysicsRotation(float DeltaTime)
+{
+	if (IsOnLadder())
+	{
+		return;
+	}
+	Super::PhysicsRotation(DeltaTime);
 }
 
 bool UGCBaseCharacterMovementComponent::IsProning() const
@@ -360,6 +385,11 @@ void UGCBaseCharacterMovementComponent::OnMovementModeChanged(EMovementMode Prev
 	}
 }
 
+AGCBaseCharacter* UGCBaseCharacterMovementComponent::GetBaseCharacterOwner() const
+{
+	return StaticCast<AGCBaseCharacter*>(CharacterOwner);
+}
+
 void UGCBaseCharacterMovementComponent::SetIsOutOfStamina(bool bIsOutOfStamina_In)
 {
 	bIsOutOfStamina = bIsOutOfStamina_In;
@@ -389,7 +419,29 @@ bool UGCBaseCharacterMovementComponent::IsMantling() const
 void UGCBaseCharacterMovementComponent::AttachToLadder(const ALadder* Ladder)
 {
 	CurrentLadder = Ladder;
+	FRotator TargetOrientationRotation = CurrentLadder->GetActorForwardVector().ToOrientationRotator();
+	TargetOrientationRotation.Yaw += 180.0f;
+
+	FVector LadderUpVector = CurrentLadder->GetActorUpVector();
+	FVector LadderForwardVector = CurrentLadder->GetActorForwardVector();
+	float Projection = GetActorToCurrentLadderProjection(GetActorLocation());
+
+
+	FVector NewCharacterLocation = CurrentLadder->GetActorLocation() + Projection * LadderUpVector + LadderToCharacterOffset * LadderForwardVector;
+
+	GetOwner()->SetActorLocation(NewCharacterLocation);
+	GetOwner()->SetActorRotation(TargetOrientationRotation);
+
 	SetMovementMode(EMovementMode::MOVE_Custom, (uint8)ECustomMovementMode::CMOVE_Ladder);
+}
+
+float UGCBaseCharacterMovementComponent::GetActorToCurrentLadderProjection(const FVector& Location)
+{
+	checkf(IsValid(CurrentLadder), TEXT("UGCBaseCharacterMovementComponent::GetCharacterToCurrentLadderProjection() cannot be invoked when current ladder is null"));
+
+	FVector LadderUpVector = CurrentLadder->GetActorUpVector();
+	FVector LadderToCharacterDistance = Location - CurrentLadder->GetActorLocation();
+	return FVector::DotProduct(LadderUpVector, LadderToCharacterDistance);
 }
 
 void UGCBaseCharacterMovementComponent::DetachFromLadder()
