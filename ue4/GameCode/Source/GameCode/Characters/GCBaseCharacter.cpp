@@ -19,6 +19,9 @@ AGCBaseCharacter::AGCBaseCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	GCBaseCharacterMovementComponent = StaticCast<UGCBaseCharacterMovementComponent*>(GetCharacterMovement());
 	LedgeDetectorComponent = CreateDefaultSubobject<ULedgeDetectorComponent>(TEXT("LedgeDetector"));
+
+	GetMesh()->CastShadow = true;
+	GetMesh()->bCastDynamicShadow = true;
 }
 
 void AGCBaseCharacter::Jump()
