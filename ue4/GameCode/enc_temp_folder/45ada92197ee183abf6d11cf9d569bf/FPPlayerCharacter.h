@@ -15,9 +15,6 @@ class GAMECODE_API AFPPlayerCharacter : public APlayerCharacter
 public:
 	AFPPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
-	virtual void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
-	virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
-
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | First Person")
 	class USkeletalMeshComponent* FirstPersonMeshComponent;
