@@ -15,8 +15,14 @@ class GAMECODE_API AFPPlayerCharacter : public APlayerCharacter
 public:
 	AFPPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
+	virtual void PossessedBy(AController* NewController) override;
+
+	virtual void Tick(float DeltaTime) override;
+
 	virtual void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
+
+	virtual FRotator GetViewRotation() const override;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | First Person")
@@ -24,4 +30,14 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | First Person")
 	class UCameraComponent* FirstPersonCameraComponent;
+
+	virtual void OnMantle(const FMantlingSettings& MantlingSettings, float MantlingAnimationStartTime) override;
+
+private:
+	FTimerHandle FPMontageTimer;
+
+	void OnFPMontageTimerElapsed();
+	bool IsFPMontagePlaying() const;
+
+	TWeakObjectPtr<class AGCPlayerController> GCPlayerController;
 };

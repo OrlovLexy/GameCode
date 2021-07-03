@@ -6,13 +6,18 @@
 #include "GameFramework/Character.h"
 #include "GCBaseCharacter.generated.h"
 
+class UAnimMontage;
+
 USTRUCT(BlueprintType)
 struct FMantlingSettings
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class UAnimMontage* MantlingMontage;
+	UAnimMontage* MantlingMontage; 
+		
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UAnimMontage* FPMantlingMontage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UCurveVector* MantlingCurve;
@@ -66,7 +71,9 @@ public:
 
 	bool bCanJump = true;
 
-	virtual void Mantle(bool bForce = false);
+	void Mantle(bool bForce = false);
+
+	virtual void OnMantle(const FMantlingSettings& MantlingSettings, float MantlingAnimationStartTime);
 
 	bool CanMantle() const;
 

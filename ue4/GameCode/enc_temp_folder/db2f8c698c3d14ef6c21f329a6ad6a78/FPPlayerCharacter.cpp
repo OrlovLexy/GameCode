@@ -41,19 +41,6 @@ void AFPPlayerCharacter::PossessedBy(AController* NewController)
 	GCPlayerController = Cast<AGCPlayerController>(NewController);
 }
 
-void AFPPlayerCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	if (IsFPMontagePlaying() && GCPlayerController.IsValid())
-	{
-		FRotator TargetControlRotation = GCPlayerController->GetControlRotation();
-		TargetControlRotation.Pitch = 0.0f;
-		float BlendSpeed = 300.0f;
-		TargetControlRotation = FMath::RInterpTo(GCPlayerController->GetControlRotation(), TargetControlRotation, DeltaTime, BlendSpeed);
-		GCPlayerController->SetControlRotation(TargetControlRotation);
-	}
-}
-
 void AFPPlayerCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
 {
 	Super::OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
@@ -70,20 +57,6 @@ void AFPPlayerCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHei
 	const AFPPlayerCharacter* DefaultCharacter = GetDefault<AFPPlayerCharacter>(GetClass());
 	FVector& FirstPersonMeshRelativeLocation = FirstPersonMeshComponent->GetRelativeLocation_DirectMutable();
 	FirstPersonMeshRelativeLocation.Z = DefaultCharacter->FirstPersonMeshComponent->GetRelativeLocation().Z;
-}
-
-FRotator AFPPlayerCharacter::GetViewRotation() const
-{
-	FRotator Result = Super::GetViewRotation();
-
-	if(IsFPMontagePlaying())
-	{
-		FRotator SocketRotation = FirstPersonMeshComponent->GetSocketRotation(SocketFPCamera);
-		Result.Yaw = SocketRotation.Yaw;
-		Result.Roll = SocketRotation.Roll;
-		Result.Pitch += SocketRotation.Pitch;
-	}
-	return Result;
 }
 
 void AFPPlayerCharacter::OnMantle(const FMantlingSettings& MantlingSettings, float MantlingAnimationStartTime)
@@ -109,10 +82,4 @@ void AFPPlayerCharacter::OnFPMontageTimerElapsed()
 		GCPlayerController->SetIgnoreLookInput(false);
 		GCPlayerController->SetIgnoreMoveInput(false);
 	}
-}
-
-bool AFPPlayerCharacter::IsFPMontagePlaying() const
-{
-	UAnimInstance* FPAnimInstance = FirstPersonMeshComponent->GetAnimInstance();
-	return IsValid(FPAnimInstance) && FPAnimInstance->IsAnyMontagePlaying();
 }

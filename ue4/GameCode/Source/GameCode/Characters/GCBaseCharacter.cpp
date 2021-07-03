@@ -143,7 +143,13 @@ void AGCBaseCharacter::Mantle(bool bForce /*= false*/)
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		AnimInstance->Montage_Play(MantlingSettings.MantlingMontage, 1.0f, EMontagePlayReturnType::Duration, MantlingParameters.StartTime);
+		OnMantle(MantlingSettings, MantlingParameters.StartTime);
 	}
+}
+
+void AGCBaseCharacter::OnMantle(const FMantlingSettings& MantlingSettings, float MantlingAnimationStartTime)
+{
+
 }
 
 bool AGCBaseCharacter::CanMantle() const
