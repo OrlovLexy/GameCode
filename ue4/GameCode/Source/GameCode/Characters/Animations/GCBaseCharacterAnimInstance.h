@@ -19,7 +19,7 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character animation")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character animation", meta = (UIMin = 0.0f, UIMax = 500.0f))
 	float Speed = 0.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character animation")
@@ -45,6 +45,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character animation")
 	float LadderSpeedRatio = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character animation")
+	bool bIsStrafing = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character animation", meta = (UIMin = -180.0f, UIMax = 180.0f))
+	float Direction = 0.0f;
 
 	UPROPERTY(EditAnywhere, Transient, BlueprintReadOnly, Category = "Character|IK settings")
 	FVector RightFootEffectorLocation = FVector::ZeroVector;
