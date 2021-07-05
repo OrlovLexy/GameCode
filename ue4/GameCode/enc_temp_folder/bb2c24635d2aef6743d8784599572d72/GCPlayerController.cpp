@@ -11,16 +11,6 @@ void AGCPlayerController::SetPawn(APawn* InPawn)
 	CachedBaseCharacter = Cast<AGCBaseCharacter>(InPawn);
 }
 
-bool AGCPlayerController::GetIgnoreCameraPitch() const
-{
-	return bIgnoreCameraPitch;
-}
-
-void AGCPlayerController::SetIgnoreCameraPitch(bool bIgnoreCameraPitch_In)
-{
-	bIgnoreCameraPitch = bIgnoreCameraPitch_In;
-}
-
 void AGCPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();

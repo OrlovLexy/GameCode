@@ -2,10 +2,10 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "../GameCodeTypes.h"
 #include "Controllers/GCPlayerController.h"
-#include "../Components/MovementComponents/GCBaseCharacterMovementComponent.h"
 
 
 AFPPlayerCharacter::AFPPlayerCharacter(const FObjectInitializer& ObjectInitializer)
@@ -84,38 +84,6 @@ FRotator AFPPlayerCharacter::GetViewRotation() const
 		Result.Pitch += SocketRotation.Pitch;
 	}
 	return Result;
-}
-
-void AFPPlayerCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PrevCustomMode /*= 0*/)
-{
-	Super::OnMovementModeChanged(PrevMovementMode, PrevCustomMode);
-	if (GetBaseCharacterMovementComponent()->IsOnLadder())
-	{
-		OnLadderCameraViewChanged(true);
-	}
-	else if (PrevCustomMode == (uint8)ECustomMovementMode::CMOVE_Ladder)
-	{
-		OnLadderCameraViewChanged(false);
-	}
-		
-}
-
-void AFPPlayerCharacter::OnLadderCameraViewChanged(bool bIsOnLadder)
-{
-	if (GCPlayerController.IsValid())
-	{
-
-		GCPlayerController->SetIgnoreCameraPitch(bIsOnLadder);
-		bUseControllerRotationYaw = !bIsOnLadder;
-
-		APlayerCameraManager* CameraManager = GCPlayerController->PlayerCameraManager;
-		APlayerCameraManager* DefaultCameraManager = CameraManager->GetClass()->GetDefaultObject<APlayerCameraManager>();
-
-		CameraManager->ViewPitchMin = bIsOnLadder ? LadderCameraMinPitch : DefaultCameraManager->ViewPitchMin;
-		CameraManager->ViewPitchMax = bIsOnLadder ? LadderCameraMaxPitch : DefaultCameraManager->ViewPitchMax;
-		CameraManager->ViewYawMin = bIsOnLadder ? LadderCameraMinYaw : DefaultCameraManager->ViewYawMin;
-		CameraManager->ViewYawMax = bIsOnLadder ? LadderCameraMaxYaw : DefaultCameraManager->ViewYawMax;
-	}
 }
 
 void AFPPlayerCharacter::OnMantle(const FMantlingSettings& MantlingSettings, float MantlingAnimationStartTime)

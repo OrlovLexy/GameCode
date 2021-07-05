@@ -17,9 +17,6 @@ class GAMECODE_API AGCPlayerController : public APlayerController
 public:
 	virtual void SetPawn(APawn* InPawn) override;
 
-	bool GetIgnoreCameraPitch() const;
-	void SetIgnoreCameraPitch(bool bIgnoreCameraPitch_In);
-
 protected:
 	virtual void SetupInputComponent() override;
 
@@ -47,5 +44,4 @@ private:
 
 	TSoftObjectPtr<class AGCBaseCharacter> CachedBaseCharacter;
 	
-	bool bIgnoreCameraPitch = false;
 };
