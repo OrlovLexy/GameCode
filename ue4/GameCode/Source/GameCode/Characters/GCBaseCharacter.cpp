@@ -13,15 +13,27 @@
 #include "../GameCodeTypes.h"
 #include "Curves/CurveVector.h"
 #include "../Actors/Interactive/Environment/Ladder.h"
+#include "../Components/CharacterComponents/CharacterAttributeComponent.h"
 
 AGCBaseCharacter::AGCBaseCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGCBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	GCBaseCharacterMovementComponent = StaticCast<UGCBaseCharacterMovementComponent*>(GetCharacterMovement());
 	LedgeDetectorComponent = CreateDefaultSubobject<ULedgeDetectorComponent>(TEXT("LedgeDetector"));
+	CharacterAttributesComponent = CreateDefaultSubobject<UCharacterAttributeComponent>(TEXT("CharacterAttributes"));
 
 	GetMesh()->CastShadow = true;
 	GetMesh()->bCastDynamicShadow = true;
+}
+
+void AGCBaseCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	CurrentStamina = MaxStamina;
+	PronePelvisOffset = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * 0.5f;
+	PronedEyeHeight = GCBaseCharacterMovementComponent->PronedHalfHeight * 0.80f;
+
+	CharacterAttributesComponent->OnDeathEvent.AddUObject(this, &AGCBaseCharacter::OnDeath);
 }
 
 void AGCBaseCharacter::Jump()
@@ -162,14 +174,6 @@ bool AGCBaseCharacter::CanJumpInternal_Implementation() const
 	return Super::CanJumpInternal_Implementation() && !GetBaseCharacterMovementComponent()->IsMantling();
 }
 
-void AGCBaseCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	CurrentStamina = MaxStamina;
-	PronePelvisOffset = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()*0.5f;
-	PronedEyeHeight = GCBaseCharacterMovementComponent->PronedHalfHeight * 0.80f;
-}
-
 void AGCBaseCharacter::OnStartProne(float HalfHeightAdjust, float ScaledHeightAdjust)
 {
 	RecalculateBaseEyeHeight();
@@ -247,6 +251,17 @@ bool AGCBaseCharacter::CanSprint()
 	return !GCBaseCharacterMovementComponent->IsOutOfStamina() && !FMath::IsNearlyZero(GetController()->GetInputAxisValue("MoveForward"), 1e-6f);
 }
 
+void AGCBaseCharacter::OnDeath()
+{
+	GetCharacterMovement()->DisableMovement();
+
+	float Duration = PlayAnimMontage(OnDeathAnimMontage);
+	if (Duration == 0.0f)
+	{
+		EnableRagdoll();
+	}
+}
+
 void AGCBaseCharacter::TryChangeSprintState(float DeltaSeconds)
 {
 	if (bIsSprintRequsted && !GCBaseCharacterMovementComponent->IsSprinting() && CanSprint())
@@ -299,6 +314,12 @@ float AGCBaseCharacter::CalculateIKPelvisOffset()
 const FMantlingSettings& AGCBaseCharacter::GetMantlingSettings(float LedgeHeight) const
 {
 	return LedgeHeight > LowMantleMaxHeight ? HighMantleSettings : LowMantleSettings;
+}
+
+void AGCBaseCharacter::EnableRagdoll()
+{
+	GetMesh()->SetCollisionProfileName(CollisionProfileRagDoll);
+	GetMesh()->SetSimulatePhysics(true);
 }
 
 void AGCBaseCharacter::ClimbLadderUp(float Value)

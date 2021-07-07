@@ -51,6 +51,8 @@ class GAMECODE_API AGCBaseCharacter : public ACharacter
 public:
 	AGCBaseCharacter(const FObjectInitializer& ObjectInitializer);
 
+	virtual void BeginPlay() override;
+
 	virtual void MoveForward(float Value) {};
 	virtual void MoveRight(float Value) {};
 	virtual void Turn(float Value) {};
@@ -124,8 +126,6 @@ public:
 	const class ALadder* GetAvailableLadder() const;
 
 protected:
-	virtual void BeginPlay() override;
-
 	UFUNCTION(BlueprintNativeEvent, Category = "Character | Movement")
 	void OnSprintStart();
 	virtual void OnSprintStart_Implementation();
@@ -178,6 +178,15 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Movement", meta = (ClampMin = 0.0f, UIMin = 0.0f))
 	float SprintStaminaConsumptionVelocity = 5.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character | Components")
+	class UCharacterAttributeComponent* CharacterAttributesComponent;
+
+	virtual void OnDeath();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Character | Animations")
+	class UAnimMontage* OnDeathAnimMontage;
+	
 private:
 	void TryChangeSprintState(float DeltaSeconds);
 	float GetIKOffsetForASocket(const FName& SocketName);
@@ -186,6 +195,8 @@ private:
 	const FMantlingSettings& GetMantlingSettings(float LedgeHeight) const;
 
 	TArray<AInteractiveActor*> AvailableInteractiveActors;
+
+	void EnableRagdoll();
 
 	bool bIsSprintRequsted = false;
 
