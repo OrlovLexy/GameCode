@@ -365,6 +365,29 @@ const ALadder* AGCBaseCharacter::GetAvailableLadder() const
 	return Result;
 }
 
+void AGCBaseCharacter::Falling()
+{
+	Super::Falling();
+	GetBaseCharacterMovementComponent()->bNotifyApex = true;
+}
+
+void AGCBaseCharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+	float FallHeight = (CurrentFallApex - GetActorLocation()).Z * 0.01f;
+	if (IsValid(FallDamageCurve))
+	{
+		float DamageAmount = FallDamageCurve->GetFloatValue(FallHeight);
+		TakeDamage(DamageAmount, FDamageEvent(), GetController(), Hit.Actor.Get());
+	}
+}
+
+void AGCBaseCharacter::NotifyJumpApex()
+{
+	Super::NotifyJumpApex();
+	CurrentFallApex = GetActorLocation();
+}
+
 void AGCBaseCharacter::Prone()
 {
 	if (CanProne())

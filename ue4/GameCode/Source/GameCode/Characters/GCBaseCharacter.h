@@ -125,6 +125,10 @@ public:
 	void InteractWithLadder();
 	const class ALadder* GetAvailableLadder() const;
 
+	virtual void Falling() override;
+	virtual void Landed(const FHitResult& Hit) override;
+	virtual void NotifyJumpApex() override;
+
 protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Character | Movement")
 	void OnSprintStart();
@@ -186,6 +190,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Character | Animations")
 	class UAnimMontage* OnDeathAnimMontage;
+
+	// Damage depending from fall height (in meters)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character | Attributes")
+	class UCurveFloat* FallDamageCurve;
 	
 private:
 	void TryChangeSprintState(float DeltaSeconds);
@@ -197,6 +205,8 @@ private:
 	TArray<AInteractiveActor*> AvailableInteractiveActors;
 
 	void EnableRagdoll();
+
+	FVector CurrentFallApex;
 
 	bool bIsSprintRequsted = false;
 
