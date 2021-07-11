@@ -194,6 +194,9 @@ protected:
 	// Damage depending from fall height (in meters)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character | Attributes")
 	class UCurveFloat* FallDamageCurve;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character | Components")
+	class UCharacterEquipmentComponent* CharacterEquipmentComponent;
 	
 private:
 	void TryChangeSprintState(float DeltaSeconds);

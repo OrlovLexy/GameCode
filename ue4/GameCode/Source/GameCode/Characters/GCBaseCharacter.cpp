@@ -3,27 +3,30 @@
 
 #include "GCBaseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "../Components/MovementComponents/GCBaseCharacterMovementComponent.h"
-#include "../Components/LedgeDetectorComponent.h"
+#include "Components/MovementComponents/GCBaseCharacterMovementComponent.h"
+#include "Components/LedgeDetectorComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/CapsuleComponent.h"
-#include "../Subsystems/DebugSubsystem.h"
+#include "Subsystems/DebugSubsystem.h"
 #include "Kismet/GameplayStatics.h"
-#include "../GameCodeTypes.h"
+#include "GameCodeTypes.h"
 #include "Curves/CurveVector.h"
-#include "../Actors/Interactive/Environment/Ladder.h"
-#include "../Components/CharacterComponents/CharacterAttributeComponent.h"
+#include "Actors/Interactive/Environment/Ladder.h"
+#include "Components/CharacterComponents/CharacterAttributeComponent.h"
+#include "Components/CharacterComponents/CharacterEquipmentComponent.h"
 
 AGCBaseCharacter::AGCBaseCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGCBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	GCBaseCharacterMovementComponent = StaticCast<UGCBaseCharacterMovementComponent*>(GetCharacterMovement());
 	LedgeDetectorComponent = CreateDefaultSubobject<ULedgeDetectorComponent>(TEXT("LedgeDetector"));
-	CharacterAttributesComponent = CreateDefaultSubobject<UCharacterAttributeComponent>(TEXT("CharacterAttributes"));
 
 	GetMesh()->CastShadow = true;
 	GetMesh()->bCastDynamicShadow = true;
+
+	CharacterAttributesComponent = CreateDefaultSubobject<UCharacterAttributeComponent>(TEXT("CharacterAttributes"));
+	CharacterEquipmentComponent = CreateDefaultSubobject<UCharacterEquipmentComponent>(TEXT("CharacterEquipment"));
 }
 
 void AGCBaseCharacter::BeginPlay()
