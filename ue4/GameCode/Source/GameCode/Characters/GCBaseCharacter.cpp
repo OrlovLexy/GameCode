@@ -119,6 +119,11 @@ void AGCBaseCharacter::Tick(float DeltaSeconds)
 	}
 }
 
+void AGCBaseCharacter::Fire()
+{
+	CharacterEquipmentComponent->Fire();
+}
+
 void AGCBaseCharacter::Mantle(bool bForce /*= false*/)
 {
 	if (!(CanMantle() || bForce))

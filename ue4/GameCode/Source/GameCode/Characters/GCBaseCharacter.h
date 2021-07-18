@@ -68,6 +68,8 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	void Fire();
+
 	virtual void SwimForward(float Value) {};
 	virtual void SwimRight(float Value) {};
 	virtual void SwimUp(float Value) {};

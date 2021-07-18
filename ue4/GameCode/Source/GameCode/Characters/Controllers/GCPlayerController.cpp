@@ -41,6 +41,7 @@ void AGCPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Sprint", EInputEvent::IE_Pressed, this, &AGCPlayerController::StartSprint);
 	InputComponent->BindAction("Sprint", EInputEvent::IE_Released, this, &AGCPlayerController::StopSprint);
 	InputComponent->BindAction("Prone", EInputEvent::IE_Pressed, this, &AGCPlayerController::ChangeProneState);
+	InputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &AGCPlayerController::Fire);
 	
 }
 
@@ -177,5 +178,13 @@ void AGCPlayerController::InteractWithLadder()
 	if (CachedBaseCharacter.IsValid())
 	{
 		CachedBaseCharacter->InteractWithLadder();
+	}
+}
+
+void AGCPlayerController::Fire()
+{
+	if (CachedBaseCharacter.IsValid())
+	{
+		CachedBaseCharacter->Fire();
 	}
 }

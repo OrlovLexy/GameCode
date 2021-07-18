@@ -17,6 +17,8 @@ class GAMECODE_API ARangeWeaponItem : public AEquipableItem
 public:
 	ARangeWeaponItem();
 
+	void Fire();
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USkeletalMeshComponent* WeaponMesh;

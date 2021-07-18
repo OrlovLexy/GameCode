@@ -45,6 +45,8 @@ private:
 	void ClimbLadderUp(float Value);
 	void InteractWithLadder();
 
+	void Fire();
+
 	TSoftObjectPtr<class AGCBaseCharacter> CachedBaseCharacter;
 	
 	bool bIgnoreCameraPitch = false;
