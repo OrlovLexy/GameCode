@@ -1,7 +1,16 @@
 #include "CharacterEquipmentComponent.h"
 #include "Characters/GCBaseCharacter.h"
 #include "Actors/Equipment/Weapons/RangeWeaponItem.h"
-#include "GameCodeTypes.h"
+
+EEquipableItemType UCharacterEquipmentComponent::GetCurrentEquipedItemType() const
+{
+	EEquipableItemType Result = EEquipableItemType::None;
+	if (IsValid(CurrentEquipedItem))
+	{
+		Result = CurrentEquipedItem->GetItemType();
+	}
+	return Result;
+}
 
 void UCharacterEquipmentComponent::BeginPlay()
 {

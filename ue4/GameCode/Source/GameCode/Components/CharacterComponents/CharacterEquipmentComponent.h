@@ -2,14 +2,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameCodeTypes.h"
 #include "CharacterEquipmentComponent.generated.h"
 
 class ARangeWeaponItem;
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GAMECODE_API UCharacterEquipmentComponent : public UActorComponent
 {
 	GENERATED_BODY()
+
+public:
+	EEquipableItemType GetCurrentEquipedItemType() const;
 
 protected:
 	virtual void BeginPlay();

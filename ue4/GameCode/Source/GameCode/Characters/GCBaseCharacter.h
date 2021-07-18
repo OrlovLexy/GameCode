@@ -6,7 +6,10 @@
 #include "GameFramework/Character.h"
 #include "GCBaseCharacter.generated.h"
 
+class AInteractiveActor;
+class UGCBaseCharacterMovementComponent;
 class UAnimMontage;
+class UCharacterEquipmentComponent;
 
 USTRUCT(BlueprintType)
 struct FMantlingSettings
@@ -41,8 +44,6 @@ struct FMantlingSettings
 	float MinHeightStartTime = 0.5f;
 };
 
-class AInteractiveActor;
-class UGCBaseCharacterMovementComponent;
 UCLASS(Abstract, NotBlueprintable)
 class GAMECODE_API AGCBaseCharacter : public ACharacter
 {
@@ -82,6 +83,7 @@ public:
 	virtual bool CanJumpInternal_Implementation() const override;
 
 	UGCBaseCharacterMovementComponent* GetBaseCharacterMovementComponent() const { return GCBaseCharacterMovementComponent; };
+	const UCharacterEquipmentComponent* GetCharacterEquipmentComponent() const { return CharacterEquipmentComponent; };
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	float GetIKRightFootOffset() const { return IKRightFootOffset; }
@@ -189,7 +191,7 @@ protected:
 	virtual void OnDeath();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Character | Animations")
-	class UAnimMontage* OnDeathAnimMontage;
+	UAnimMontage* OnDeathAnimMontage;
 
 	// Damage depending from fall height (in meters)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character | Attributes")

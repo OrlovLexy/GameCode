@@ -2,8 +2,9 @@
 
 
 #include "GCBaseCharacterAnimInstance.h"
-#include "../GCBaseCharacter.h"
-#include "../../Components/MovementComponents/GCBaseCharacterMovementComponent.h"
+#include "Characters/GCBaseCharacter.h"
+#include "Components/MovementComponents/GCBaseCharacterMovementComponent.h"
+#include "Components/CharacterComponents/CharacterEquipmentComponent.h"
 
 void UGCBaseCharacterAnimInstance::NativeBeginPlay()
 {
@@ -39,4 +40,9 @@ void UGCBaseCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	LeftFootEffectorLocation = FVector(-(CachedBaseCharacter->GetIKLeftFootOffset() + CachedBaseCharacter->GetIKPelvisOffset()), 0.0f, 0.0f);
 	PelvisOffsetLocation = FVector(0.0f, 0.0f, CachedBaseCharacter->GetIKPelvisOffset());
 	PronePelvisOffsetLocation = FVector(0.0f, -CachedBaseCharacter->GetPronePelvisOffset(), 0.0f);
+
+	AimRotation = CachedBaseCharacter->GetBaseAimRotation();
+
+	const UCharacterEquipmentComponent* CharacterEquipment = CachedBaseCharacter->GetCharacterEquipmentComponent();
+	CurrentEquipedItemType = CharacterEquipment->GetCurrentEquipedItemType();
 }

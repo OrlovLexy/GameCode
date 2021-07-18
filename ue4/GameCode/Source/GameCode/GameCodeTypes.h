@@ -14,3 +14,10 @@ const FName CollisionProfileRagDoll = FName("RagDoll");
 const FName DebugCategoryLedgeDetection = FName("LedgeDetection");
 const FName DebugCategoryIKDetection = FName("IKDetection");
 const FName DebugCategoryCharacterAttributes= FName("CharacterAttributes");
+
+UENUM(BlueprintType)
+enum class EEquipableItemType : uint8
+{
+	None,
+	Pistol
+};
