@@ -4,7 +4,7 @@
 #include "Components/SceneComponent.h"
 #include "WeaponBarellComponent.generated.h"
 
-
+class UNiagaraSystem;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GAMECODE_API UWeaponBarellComponent : public USceneComponent
 {
@@ -19,4 +19,10 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barell attributes | Damage")
 	float DamageAmount = 20.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barell attributes | VFX")
+	UNiagaraSystem* MuzzleFlashFX;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barell attributes | VFX")
+	UNiagaraSystem* TraceFX;
 };

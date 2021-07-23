@@ -3,12 +3,16 @@
 #include "DrawDebugHelpers.h"
 #include "Subsystems/DebugSubsystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 
 void UWeaponBarellComponent::Shot(FVector ShotStart, FVector ShotDirection, AController* Controller)
 {
 	FVector MuzzleLocation = GetComponentLocation();
 	FVector ShotEnd = ShotStart + FiringRange * ShotDirection;
+
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), MuzzleFlashFX, MuzzleLocation, GetComponentRotation());
 
 #if ENABLE_DRAW_DEBUG
 	UDebugSubsystem* DebugSubsystem = UGameplayStatics::GetGameInstance(GetWorld())->GetSubsystem<UDebugSubsystem>();
@@ -33,6 +37,9 @@ void UWeaponBarellComponent::Shot(FVector ShotStart, FVector ShotDirection, ACon
 			HitActor->TakeDamage(DamageAmount, FDamageEvent{}, Controller, GetOwner());
 		}
 	}
+
+	UNiagaraComponent* TraceFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TraceFX, MuzzleLocation, GetComponentRotation());
+	TraceFXComponent->SetVectorParameter(FXParamTraceEnd, ShotEnd);
 
 	if (bIsDebugEnabled)
 	{
