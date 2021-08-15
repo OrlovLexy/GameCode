@@ -59,6 +59,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character animation")
 	EEquipableItemType CurrentEquipedItemType = EEquipableItemType::None;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character animation | Weapon")
+	FTransform ForeGripSocketTransform;
+
 	UPROPERTY(EditAnywhere, Transient, BlueprintReadOnly, Category = "Character|IK settings")
 	FVector RightFootEffectorLocation = FVector::ZeroVector;
 	

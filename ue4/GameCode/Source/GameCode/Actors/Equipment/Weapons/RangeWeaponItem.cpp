@@ -42,6 +42,11 @@ void ARangeWeaponItem::Fire()
 	WeaponBarell->Shot(PlayerViewPoint, ViewDirection, Controller);
 }
 
+FTransform ARangeWeaponItem::GetForeGripTransform() const
+{
+	return WeaponMesh->GetSocketTransform(SocketWeaponForeGrip);
+}
+
 float ARangeWeaponItem::PlayAnimMontage(UAnimMontage* AnimMontage)
 {
 	UAnimInstance* WeaponAnimInstance = WeaponMesh->GetAnimInstance();
