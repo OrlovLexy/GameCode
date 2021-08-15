@@ -41,7 +41,8 @@ void AGCPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Sprint", EInputEvent::IE_Pressed, this, &AGCPlayerController::StartSprint);
 	InputComponent->BindAction("Sprint", EInputEvent::IE_Released, this, &AGCPlayerController::StopSprint);
 	InputComponent->BindAction("Prone", EInputEvent::IE_Pressed, this, &AGCPlayerController::ChangeProneState);
-	InputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &AGCPlayerController::Fire);
+	InputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &AGCPlayerController::StartFire);
+	InputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &AGCPlayerController::StopFire);
 	
 }
 
@@ -181,10 +182,18 @@ void AGCPlayerController::InteractWithLadder()
 	}
 }
 
-void AGCPlayerController::Fire()
+void AGCPlayerController::StopFire()
 {
 	if (CachedBaseCharacter.IsValid())
 	{
-		CachedBaseCharacter->Fire();
+		CachedBaseCharacter->StopFire();
+	}
+}
+
+void AGCPlayerController::StartFire()
+{
+	if (CachedBaseCharacter.IsValid())
+	{
+		CachedBaseCharacter->StartFire();
 	}
 }

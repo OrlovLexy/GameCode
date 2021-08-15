@@ -15,6 +15,7 @@
 #include "Actors/Interactive/Environment/Ladder.h"
 #include "Components/CharacterComponents/CharacterAttributeComponent.h"
 #include "Components/CharacterComponents/CharacterEquipmentComponent.h"
+#include "Actors/Equipment/Weapons/RangeWeaponItem.h"
 
 AGCBaseCharacter::AGCBaseCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGCBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -119,9 +120,22 @@ void AGCBaseCharacter::Tick(float DeltaSeconds)
 	}
 }
 
-void AGCBaseCharacter::Fire()
+void AGCBaseCharacter::StartFire()
 {
-	CharacterEquipmentComponent->Fire();
+	ARangeWeaponItem* CurrentRangeWeapon = CharacterEquipmentComponent->GetCurrentRangeWeapon();
+	if (IsValid(CurrentRangeWeapon))
+	{
+		CurrentRangeWeapon->StartFire();
+	}
+}
+
+void AGCBaseCharacter::StopFire()
+{
+	ARangeWeaponItem* CurrentRangeWeapon = CharacterEquipmentComponent->GetCurrentRangeWeapon();
+	if (IsValid(CurrentRangeWeapon))
+	{
+		CurrentRangeWeapon->StopFire();
+	}
 }
 
 void AGCBaseCharacter::Mantle(bool bForce /*= false*/)

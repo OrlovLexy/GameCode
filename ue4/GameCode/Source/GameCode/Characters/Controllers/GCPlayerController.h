@@ -45,7 +45,8 @@ private:
 	void ClimbLadderUp(float Value);
 	void InteractWithLadder();
 
-	void Fire();
+	void StartFire();
+	void StopFire();
 
 	TSoftObjectPtr<class AGCBaseCharacter> CachedBaseCharacter;
 	

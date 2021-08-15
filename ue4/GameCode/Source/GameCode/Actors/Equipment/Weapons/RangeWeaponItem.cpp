@@ -17,16 +17,36 @@ ARangeWeaponItem::ARangeWeaponItem()
 	WeaponBarell->SetupAttachment(WeaponMesh, SocketWeaponMuzzle);
 }
 
-void ARangeWeaponItem::Fire()
+void ARangeWeaponItem::StartFire()
 {
-	checkf(GetOwner()-IsA<AGCBaseCharacter>(), TEXT("ARangeWeaponItem::Fire() only character can be an owner of range weapon"))
-	AGCBaseCharacter* CharacterOwner = StaticCast<AGCBaseCharacter*>(GetOwner());
+	MakeShot();
+	if (WeaponFireMode == EWeaponFireMode::FullAuto)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(ShotTimer);
+		GetWorld()->GetTimerManager().SetTimer(ShotTimer, this, &ARangeWeaponItem::MakeShot, GetShotTimerInterval(), true);
+	}
+}
+
+void ARangeWeaponItem::StopFire()
+{
+	GetWorld()->GetTimerManager().ClearTimer(ShotTimer);
+}
+
+FTransform ARangeWeaponItem::GetForeGripTransform() const
+{
+	return WeaponMesh->GetSocketTransform(SocketWeaponForeGrip);
+}
+
+void ARangeWeaponItem::MakeShot()
+{
+	checkf(GetOwner() - IsA<AGCBaseCharacter>(), TEXT("ARangeWeaponItem::Fire() only character can be an owner of range weapon"))
+		AGCBaseCharacter* CharacterOwner = StaticCast<AGCBaseCharacter*>(GetOwner());
 
 	CharacterOwner->PlayAnimMontage(CharacterFireMontage);
 	PlayAnimMontage(WeaponFireMontage);
 
 	APlayerController* Controller = CharacterOwner->GetController<APlayerController>();
-	
+
 	if (!IsValid(Controller))
 	{
 		return;
@@ -42,9 +62,9 @@ void ARangeWeaponItem::Fire()
 	WeaponBarell->Shot(PlayerViewPoint, ViewDirection, Controller);
 }
 
-FTransform ARangeWeaponItem::GetForeGripTransform() const
+float ARangeWeaponItem::GetShotTimerInterval()
 {
-	return WeaponMesh->GetSocketTransform(SocketWeaponForeGrip);
+	return 60.0f / RateOfFire;
 }
 
 float ARangeWeaponItem::PlayAnimMontage(UAnimMontage* AnimMontage)

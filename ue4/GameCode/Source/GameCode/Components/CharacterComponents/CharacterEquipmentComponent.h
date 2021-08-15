@@ -16,8 +16,6 @@ public:
 
 	ARangeWeaponItem* GetCurrentRangeWeapon() const;
 
-	void Fire();
-
 protected:
 	virtual void BeginPlay();
 
