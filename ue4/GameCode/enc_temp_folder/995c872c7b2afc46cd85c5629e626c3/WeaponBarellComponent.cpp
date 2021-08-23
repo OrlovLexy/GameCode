@@ -41,7 +41,6 @@ void UWeaponBarellComponent::Shot(FVector ShotStart, FVector ShotDirection, ACon
 		UDecalComponent* DecalComponent = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), DefaultDecalInfo.DecalMaterial, DefaultDecalInfo.DecalSize, ShotResult.ImpactPoint, ShotResult.ImpactNormal.ToOrientationRotator());
 		if (IsValid(DecalComponent))
 		{
-			DecalComponent->SetFadeScreenSize(0.0001f);
 			DecalComponent->SetFadeOut(DefaultDecalInfo.DecalLifeTime, DefaultDecalInfo.DecalFadeOutTime);
 		}
 	}
