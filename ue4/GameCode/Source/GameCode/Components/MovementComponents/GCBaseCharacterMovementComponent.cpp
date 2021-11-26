@@ -107,6 +107,10 @@ float UGCBaseCharacterMovementComponent::GetMaxSpeed() const
 	{
 		Result = ClimbingOnLadderMaxSpeed;
 	}
+	else if (GetBaseCharacterOwner()->IsAiming())
+	{
+		Result = GetBaseCharacterOwner()->GetAimingMovementSpeed();
+	}
 	return Result;
 }
 

@@ -43,6 +43,7 @@ void UGCBaseCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	PronePelvisOffsetLocation = FVector(0.0f, -CachedBaseCharacter->GetPronePelvisOffset(), 0.0f);
 
 	AimRotation = CachedBaseCharacter->GetBaseAimRotation();
+	bIsAiming = CachedBaseCharacter->IsAiming();
 
 	const UCharacterEquipmentComponent* CharacterEquipment = CachedBaseCharacter->GetCharacterEquipmentComponent();
 	CurrentEquipedItemType = CharacterEquipment->GetCurrentEquipedItemType();

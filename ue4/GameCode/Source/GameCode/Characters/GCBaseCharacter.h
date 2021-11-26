@@ -71,6 +71,19 @@ public:
 	void StartFire();
 	void StopFire();
 
+	void StartAiming();
+	void StopAiming();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Character")
+	void OnStartAiming();
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Character")
+	void OnStopAiming();
+
+	float GetAimingMovementSpeed() const;
+
+	bool IsAiming() const;
+
 	virtual void SwimForward(float Value) {};
 	virtual void SwimRight(float Value) {};
 	virtual void SwimUp(float Value) {};
@@ -202,6 +215,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character | Components")
 	class UCharacterEquipmentComponent* CharacterEquipmentComponent;
+
+	virtual void OnStartAimingInternal();
+	virtual void OnStopAimingInternal();
 	
 private:
 	void TryChangeSprintState(float DeltaSeconds);
@@ -219,6 +235,10 @@ private:
 	bool bIsSprintRequsted = false;
 
 	float CurrentStamina = 0.0f;
+
+	bool bIsAiming = false;
+
+	float CurrentAimingMovementSpeed;
 
 	float PronePelvisOffset = 0.0f;
 	float PronedEyeHeight = 0.0f;

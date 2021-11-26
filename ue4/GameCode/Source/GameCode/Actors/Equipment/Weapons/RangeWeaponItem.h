@@ -25,6 +25,12 @@ public:
 	void StartFire();
 	void StopFire();
 
+	void StartAim();
+	void StopAim();
+
+	float GetAimFOV() const;
+	float GetAimMovementMaxSpeed() const;
+
 	FTransform GetForeGripTransform() const;
 
 protected:
@@ -51,12 +57,25 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Parameters", meta = (ClampMin = 0.0f, UIMin = 0.0f, ClampMax = 2.0f, UIMax = 2.0f))
 	float SpreadAngle = 1.0f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Parameters | Aiming", meta = (ClampMin = 0.0f, UIMin = 0.0f, ClampMax = 2.0f, UIMax = 2.0f))
+	float AimSpreadAngle = 0.25f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Parameters | Aiming", meta = (ClampMin = 0.0f, UIMin = 0.0f))
+	float AimMovementMaxSpeed= 200.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Parameters | Aiming", meta = (ClampMin = 0.0f, UIMin = 0.0f, ClampMax = 120.0f, UIMax = 120.0f))
+	float AimFOV= 60.0f;
+
 private:
+	bool bIsAiming;
+
+	float GetCurrentBulletSpreadAngle() const;
+
 	void MakeShot();
 
-	FVector GetBulletSpreadOffset(float Angle, FRotator ShotRotation);
+	FVector GetBulletSpreadOffset(float Angle, FRotator ShotRotation) const;
 
-	float GetShotTimerInterval();
+	float GetShotTimerInterval() const;
 
 	float PlayAnimMontage(UAnimMontage* AnimMontage);
 

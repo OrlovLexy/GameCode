@@ -138,6 +138,56 @@ void AGCBaseCharacter::StopFire()
 	}
 }
 
+void AGCBaseCharacter::StartAiming()
+{
+	ARangeWeaponItem* CurrentRangeWeapon = GetCharacterEquipmentComponent()->GetCurrentRangeWeapon();
+	if (!IsValid(CurrentRangeWeapon))
+	{
+		return;
+	}
+
+	bIsAiming = true;
+	CurrentAimingMovementSpeed = CurrentRangeWeapon->GetAimMovementMaxSpeed();
+	CurrentRangeWeapon->StartAim();
+	OnStartAiming();
+}
+
+void AGCBaseCharacter::StopAiming()
+{
+	if (!bIsAiming)
+	{
+		return;
+	}
+	ARangeWeaponItem* CurrentRangeWeapon = GetCharacterEquipmentComponent()->GetCurrentRangeWeapon();
+	if (!IsValid(CurrentRangeWeapon))
+	{
+		CurrentRangeWeapon->StopAim();
+	}
+	bIsAiming = false;
+	CurrentAimingMovementSpeed = 0.0f;
+	OnStopAiming();
+}
+
+void AGCBaseCharacter::OnStartAiming_Implementation()
+{
+	OnStartAimingInternal();
+}
+
+void AGCBaseCharacter::OnStopAiming_Implementation()
+{
+	OnStopAimingInternal();
+}
+
+float AGCBaseCharacter::GetAimingMovementSpeed() const
+{
+	return CurrentAimingMovementSpeed;
+}
+
+bool AGCBaseCharacter::IsAiming() const
+{
+	return bIsAiming;
+}
+
 void AGCBaseCharacter::Mantle(bool bForce /*= false*/)
 {
 	if (!(CanMantle() || bForce))
@@ -282,6 +332,14 @@ void AGCBaseCharacter::OnDeath()
 	{
 		EnableRagdoll();
 	}
+}
+
+void AGCBaseCharacter::OnStartAimingInternal()
+{
+}
+
+void AGCBaseCharacter::OnStopAimingInternal()
+{
 }
 
 void AGCBaseCharacter::TryChangeSprintState(float DeltaSeconds)
