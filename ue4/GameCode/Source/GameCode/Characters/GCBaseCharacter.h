@@ -10,6 +10,7 @@ class AInteractiveActor;
 class UGCBaseCharacterMovementComponent;
 class UAnimMontage;
 class UCharacterEquipmentComponent;
+class UCharacterAttributeComponent;
 
 USTRUCT(BlueprintType)
 struct FMantlingSettings
@@ -100,6 +101,7 @@ public:
 
 	UGCBaseCharacterMovementComponent* GetBaseCharacterMovementComponent() const { return GCBaseCharacterMovementComponent; };
 	const UCharacterEquipmentComponent* GetCharacterEquipmentComponent() const { return CharacterEquipmentComponent; };
+	const UCharacterAttributeComponent* GetCharacterAttributeComponent() const { return CharacterAttributesComponent; };
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	float GetIKRightFootOffset() const { return IKRightFootOffset; }
@@ -202,7 +204,7 @@ protected:
 	float SprintStaminaConsumptionVelocity = 5.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character | Components")
-	class UCharacterAttributeComponent* CharacterAttributesComponent;
+	UCharacterAttributeComponent* CharacterAttributesComponent;
 
 	virtual void OnDeath();
 
@@ -214,7 +216,7 @@ protected:
 	class UCurveFloat* FallDamageCurve;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character | Components")
-	class UCharacterEquipmentComponent* CharacterEquipmentComponent;
+	UCharacterEquipmentComponent* CharacterEquipmentComponent;
 
 	virtual void OnStartAimingInternal();
 	virtual void OnStopAimingInternal();

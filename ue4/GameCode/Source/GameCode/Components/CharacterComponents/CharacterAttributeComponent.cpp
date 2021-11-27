@@ -16,6 +16,7 @@ void UCharacterAttributeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	checkf(MaxHealth > 0.0f, TEXT("UCharacterAttributeComponent::BeginPlay() max health cannot be equal to 0"))
 	checkf(GetOwner()->IsA<AGCBaseCharacter>(), TEXT("UCharacterAttributeComponent::BeginPlay can work only with AGCBaseCharacter"))
 	CachedBaseCharacterOwner = StaticCast<AGCBaseCharacter*>(GetOwner());
 
@@ -64,4 +65,9 @@ void UCharacterAttributeComponent::TickComponent(float DeltaTime, ELevelTick Tic
 #if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
 	DebugDrawAttributes();
 #endif
+}
+
+float UCharacterAttributeComponent::GetHealthPercent() const
+{
+	return Health / MaxHealth;
 }
