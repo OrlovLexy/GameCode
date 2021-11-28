@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "GCBaseCharacter.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAimingStateChanged, bool)
+
 class AInteractiveActor;
 class UGCBaseCharacterMovementComponent;
 class UAnimMontage;
@@ -74,6 +76,8 @@ public:
 
 	void StartAiming();
 	void StopAiming();
+
+	FOnAimingStateChanged OnAimingStateChanged;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Character")
 	void OnStartAiming();

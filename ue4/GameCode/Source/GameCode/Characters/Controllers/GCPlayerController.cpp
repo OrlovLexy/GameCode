@@ -3,12 +3,16 @@
 
 #include "GCPlayerController.h"
 #include "../GCBaseCharacter.h"
+#include "Blueprint/UserWidget.h"
+#include "UI/Widget/ReticleWidget.h"
+#include "UI/Widget/PlayerHUDWidget.h"
 
 
 void AGCPlayerController::SetPawn(APawn* InPawn)
 {
 	Super::SetPawn(InPawn);
 	CachedBaseCharacter = Cast<AGCBaseCharacter>(InPawn);
+	CreateAndInitializeWidgets();
 }
 
 bool AGCPlayerController::GetIgnoreCameraPitch() const
@@ -205,6 +209,27 @@ void AGCPlayerController::StopAiming()
 	if (CachedBaseCharacter.IsValid())
 	{
 		CachedBaseCharacter->StopAiming();
+	}
+}
+
+void AGCPlayerController::CreateAndInitializeWidgets()
+{
+	if (!IsValid(PlayerHUDWidget))
+	{
+		PlayerHUDWidget = CreateWidget<UPlayerHUDWidget>(GetWorld(), PlayerHUDWidgetClass);
+
+		if (IsValid(PlayerHUDWidget))
+		{
+			PlayerHUDWidget->AddToViewport();
+		}
+	}
+	if (IsValid(PlayerHUDWidget) && CachedBaseCharacter.IsValid())
+	{
+		UReticleWidget* ReticleWidget = PlayerHUDWidget->GetReticleWidget();
+		if (IsValid(ReticleWidget))
+		{
+			CachedBaseCharacter->OnAimingStateChanged.AddUFunction(ReticleWidget, FName("OnAimingStateChanged"));
+		}
 	}
 }
 

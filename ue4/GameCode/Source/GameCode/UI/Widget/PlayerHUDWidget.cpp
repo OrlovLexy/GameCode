@@ -4,6 +4,13 @@
 #include "PlayerHUDWidget.h"
 #include "Characters/GCBaseCharacter.h"
 #include "Components/CharacterComponents/CharacterAttributeComponent.h"
+#include "Blueprint/WidgetTree.h"
+#include "ReticleWidget.h"
+
+UReticleWidget* UPlayerHUDWidget::GetReticleWidget()
+{
+	return WidgetTree->FindWidget<UReticleWidget>(ReticleWidgetName);
+}
 
 float UPlayerHUDWidget::GetHealthPercent() const
 {

@@ -336,10 +336,18 @@ void AGCBaseCharacter::OnDeath()
 
 void AGCBaseCharacter::OnStartAimingInternal()
 {
+	if (OnAimingStateChanged.IsBound())
+	{
+		OnAimingStateChanged.Broadcast(true);
+	}
 }
 
 void AGCBaseCharacter::OnStopAimingInternal()
 {
+	if (OnAimingStateChanged.IsBound())
+	{
+		OnAimingStateChanged.Broadcast(false);
+	}
 }
 
 void AGCBaseCharacter::TryChangeSprintState(float DeltaSeconds)
