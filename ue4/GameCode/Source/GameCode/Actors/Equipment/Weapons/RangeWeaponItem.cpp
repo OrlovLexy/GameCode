@@ -42,6 +42,68 @@ void ARangeWeaponItem::StopAim()
 	bIsAiming = false;
 }
 
+void ARangeWeaponItem::StartReload()
+{
+	checkf(GetOwner() - IsA<AGCBaseCharacter>(), TEXT("ARangeWeaponItem::StartReload() only character can be an owner of range weapon"))
+	AGCBaseCharacter* CharacterOwner = StaticCast<AGCBaseCharacter*>(GetOwner());
+
+	bIsReloading = true;
+	if (IsValid(CharacterReloadMontage))
+	{
+		float MontageDuration = CharacterOwner->PlayAnimMontage(CharacterReloadMontage);
+		PlayAnimMontage(WeaponReloadMontage);
+		GetWorld()->GetTimerManager().SetTimer(ReloadTimer, [this]() { EndReload(true); }, MontageDuration, false);
+	}
+	else
+	{
+		EndReload(true);
+	}
+}
+
+void ARangeWeaponItem::EndReload(bool bIsSuccess)
+{
+	if (!bIsReloading)
+	{
+		return;
+	}
+	GetWorld()->GetTimerManager().ClearTimer(ReloadTimer);
+
+	bIsReloading = false;
+	if (bIsSuccess && OnReloadComplete.IsBound())
+	{
+		OnReloadComplete.Broadcast();
+	}
+}
+
+int32 ARangeWeaponItem::GetAmmo() const
+{
+	return Ammo;
+}
+
+void ARangeWeaponItem::SetAmmo(int32 NewAmmo)
+{
+	Ammo = NewAmmo;
+	if (OnAmmoChanged.IsBound())
+	{
+		OnAmmoChanged.Broadcast(Ammo);
+	}
+}
+
+int32 ARangeWeaponItem::GetMaxAmmo() const
+{
+	return MaxAmmo;
+}
+
+EAmunitionType ARangeWeaponItem::GetAmmoType() const
+{
+	return AmmoType;
+}
+
+bool ARangeWeaponItem::CanShoot() const
+{
+	return Ammo > 0;
+}
+
 float ARangeWeaponItem::GetAimFOV() const
 {
 	return AimFOV;
@@ -57,6 +119,12 @@ FTransform ARangeWeaponItem::GetForeGripTransform() const
 	return WeaponMesh->GetSocketTransform(SocketWeaponForeGrip);
 }
 
+void ARangeWeaponItem::BeginPlay()
+{
+	Super::BeginPlay();
+	SetAmmo(MaxAmmo);
+}
+
 float ARangeWeaponItem::GetCurrentBulletSpreadAngle() const
 {
 	float AngleInDegrees = bIsAiming ? AimSpreadAngle : SpreadAngle;
@@ -66,7 +134,19 @@ float ARangeWeaponItem::GetCurrentBulletSpreadAngle() const
 void ARangeWeaponItem::MakeShot()
 {
 	checkf(GetOwner() - IsA<AGCBaseCharacter>(), TEXT("ARangeWeaponItem::Fire() only character can be an owner of range weapon"))
-		AGCBaseCharacter* CharacterOwner = StaticCast<AGCBaseCharacter*>(GetOwner());
+	AGCBaseCharacter* CharacterOwner = StaticCast<AGCBaseCharacter*>(GetOwner());
+
+	if (!CanShoot())
+	{
+		StopFire();
+		if (Ammo ==0 && bAutoReload)
+		{
+			CharacterOwner->Reload();
+		}
+		return;
+	}
+
+	EndReload(false);
 
 	CharacterOwner->PlayAnimMontage(CharacterFireMontage);
 	PlayAnimMontage(WeaponFireMontage);
@@ -85,6 +165,8 @@ void ARangeWeaponItem::MakeShot()
 
 	FVector ViewDirection = PlayerViewRotation.RotateVector(FVector::ForwardVector);
 	ViewDirection += GetBulletSpreadOffset(FMath::RandRange(0.0f, GetCurrentBulletSpreadAngle()), PlayerViewRotation);
+
+	SetAmmo(Ammo - 1);
 
 	WeaponBarell->Shot(PlayerViewPoint, ViewDirection, Controller);
 }

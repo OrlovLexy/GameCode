@@ -188,6 +188,14 @@ bool AGCBaseCharacter::IsAiming() const
 	return bIsAiming;
 }
 
+void AGCBaseCharacter::Reload() const
+{
+	if (IsValid(CharacterEquipmentComponent->GetCurrentRangeWeapon()))
+	{
+		CharacterEquipmentComponent->ReloadCurrentWeapon();
+	}
+}
+
 void AGCBaseCharacter::Mantle(bool bForce /*= false*/)
 {
 	if (!(CanMantle() || bForce))

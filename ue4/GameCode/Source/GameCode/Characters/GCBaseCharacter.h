@@ -89,6 +89,8 @@ public:
 
 	bool IsAiming() const;
 
+	void Reload() const;
+
 	virtual void SwimForward(float Value) {};
 	virtual void SwimRight(float Value) {};
 	virtual void SwimUp(float Value) {};
@@ -105,6 +107,7 @@ public:
 
 	UGCBaseCharacterMovementComponent* GetBaseCharacterMovementComponent() const { return GCBaseCharacterMovementComponent; };
 	const UCharacterEquipmentComponent* GetCharacterEquipmentComponent() const { return CharacterEquipmentComponent; };
+	UCharacterEquipmentComponent* GetCharacterEquipmentComponent_Mutable() const { return CharacterEquipmentComponent; };
 	const UCharacterAttributeComponent* GetCharacterAttributeComponent() const { return CharacterAttributesComponent; };
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)

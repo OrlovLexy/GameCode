@@ -16,6 +16,7 @@ class GAMECODE_API UPlayerHUDWidget : public UUserWidget
 	
 public:
 	class UReticleWidget* GetReticleWidget();
+	class UAmmoWidget* GetAmmoWidget();
 
 protected:
 	UFUNCTION(BlueprintCallable)
@@ -23,4 +24,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget names")
 	FName ReticleWidgetName;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget names")
+	FName AmmoWidgetName;
 };

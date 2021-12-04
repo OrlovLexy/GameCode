@@ -54,6 +54,8 @@ private:
 	void StartAiming();
 	void StopAiming();
 
+	void Reload();
+
 	TSoftObjectPtr<class AGCBaseCharacter> CachedBaseCharacter;
 	
 	bool bIgnoreCameraPitch = false;

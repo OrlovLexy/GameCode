@@ -27,3 +27,13 @@ enum class EEquipableItemType : uint8
 	Pistol,
 	Rifle
 };
+
+UENUM(BlueprintType)
+enum class EAmunitionType: uint8
+{
+	None,
+	Pistol,
+	Rifle,
+	MAX UMETA(Hidden)
+};
+
