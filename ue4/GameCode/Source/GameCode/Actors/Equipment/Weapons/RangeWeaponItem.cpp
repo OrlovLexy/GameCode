@@ -15,6 +15,8 @@ ARangeWeaponItem::ARangeWeaponItem()
 
 	WeaponBarell = CreateDefaultSubobject<UWeaponBarellComponent>(TEXT("WeaponBarell"));
 	WeaponBarell->SetupAttachment(WeaponMesh, SocketWeaponMuzzle);
+
+	EquippedSocketName = SocketCharacterWeapon;
 }
 
 void ARangeWeaponItem::StartFire()
@@ -44,9 +46,7 @@ void ARangeWeaponItem::StopAim()
 
 void ARangeWeaponItem::StartReload()
 {
-	checkf(GetOwner() - IsA<AGCBaseCharacter>(), TEXT("ARangeWeaponItem::StartReload() only character can be an owner of range weapon"))
-	AGCBaseCharacter* CharacterOwner = StaticCast<AGCBaseCharacter*>(GetOwner());
-
+	AGCBaseCharacter* CharacterOwner = GetGCBaseCharacter();
 	bIsReloading = true;
 	if (IsValid(CharacterReloadMontage))
 	{
@@ -60,11 +60,24 @@ void ARangeWeaponItem::StartReload()
 	}
 }
 
+AGCBaseCharacter* ARangeWeaponItem::GetGCBaseCharacter() const
+{
+	checkf(GetOwner() - IsA<AGCBaseCharacter>(), TEXT("ARangeWeaponItem::GetGCBaseCharacter() only character can be an owner of range weapon"))
+	return StaticCast<AGCBaseCharacter*>(GetOwner());
+}
+
 void ARangeWeaponItem::EndReload(bool bIsSuccess)
 {
 	if (!bIsReloading)
 	{
 		return;
+	}
+
+	if (!bIsSuccess)
+	{
+		AGCBaseCharacter* CharacterOwner = GetGCBaseCharacter();
+		CharacterOwner->StopAnimMontage(CharacterReloadMontage);
+		StopAnimMontage(WeaponReloadMontage);
 	}
 	GetWorld()->GetTimerManager().ClearTimer(ReloadTimer);
 
@@ -133,8 +146,7 @@ float ARangeWeaponItem::GetCurrentBulletSpreadAngle() const
 
 void ARangeWeaponItem::MakeShot()
 {
-	checkf(GetOwner() - IsA<AGCBaseCharacter>(), TEXT("ARangeWeaponItem::Fire() only character can be an owner of range weapon"))
-	AGCBaseCharacter* CharacterOwner = StaticCast<AGCBaseCharacter*>(GetOwner());
+	AGCBaseCharacter* CharacterOwner = GetGCBaseCharacter();
 
 	if (!CanShoot())
 	{
@@ -198,4 +210,13 @@ float ARangeWeaponItem::PlayAnimMontage(UAnimMontage* AnimMontage)
 		Result = WeaponAnimInstance->Montage_Play(AnimMontage);
 	}
 	return Result;
+}
+
+void ARangeWeaponItem::StopAnimMontage(UAnimMontage* AnimMontage, float BlendOutTime /*= 0.0f*/)
+{
+	UAnimInstance* WeaponAnimInstance = WeaponMesh->GetAnimInstance();
+	if (IsValid(WeaponAnimInstance))
+	{
+		WeaponAnimInstance->Montage_Stop(BlendOutTime, AnimMontage);
+	}
 }

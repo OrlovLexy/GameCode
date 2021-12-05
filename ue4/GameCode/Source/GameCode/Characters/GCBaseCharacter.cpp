@@ -122,6 +122,10 @@ void AGCBaseCharacter::Tick(float DeltaSeconds)
 
 void AGCBaseCharacter::StartFire()
 {
+	if (CharacterEquipmentComponent->IsEquipping())
+	{
+		return;
+	}
 	ARangeWeaponItem* CurrentRangeWeapon = CharacterEquipmentComponent->GetCurrentRangeWeapon();
 	if (IsValid(CurrentRangeWeapon))
 	{
@@ -188,12 +192,22 @@ bool AGCBaseCharacter::IsAiming() const
 	return bIsAiming;
 }
 
-void AGCBaseCharacter::Reload() const
+void AGCBaseCharacter::Reload()
 {
 	if (IsValid(CharacterEquipmentComponent->GetCurrentRangeWeapon()))
 	{
 		CharacterEquipmentComponent->ReloadCurrentWeapon();
 	}
+}
+
+void AGCBaseCharacter::NextItem()
+{
+	CharacterEquipmentComponent->EquipNextItem();
+}
+
+void AGCBaseCharacter::PreviousItem()
+{
+	CharacterEquipmentComponent->EquipPreviousItem();
 }
 
 void AGCBaseCharacter::Mantle(bool bForce /*= false*/)

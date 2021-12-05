@@ -54,6 +54,9 @@ private:
 	void StartAiming();
 	void StopAiming();
 
+	void NextItem();
+	void PreviousItem();
+
 	void Reload();
 
 	TSoftObjectPtr<class AGCBaseCharacter> CachedBaseCharacter;

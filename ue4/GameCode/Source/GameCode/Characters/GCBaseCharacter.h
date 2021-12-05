@@ -89,7 +89,10 @@ public:
 
 	bool IsAiming() const;
 
-	void Reload() const;
+	void Reload();
+
+	void NextItem();
+	void PreviousItem();
 
 	virtual void SwimForward(float Value) {};
 	virtual void SwimRight(float Value) {};

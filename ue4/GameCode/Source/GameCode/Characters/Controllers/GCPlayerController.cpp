@@ -52,6 +52,8 @@ void AGCPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Aim", EInputEvent::IE_Pressed, this, &AGCPlayerController::StartAiming);
 	InputComponent->BindAction("Aim", EInputEvent::IE_Released, this, &AGCPlayerController::StopAiming);
 	InputComponent->BindAction("Reload", EInputEvent::IE_Pressed, this, &AGCPlayerController::Reload);
+	InputComponent->BindAction("NextItem", EInputEvent::IE_Pressed, this, &AGCPlayerController::NextItem);
+	InputComponent->BindAction("PreviousItem", EInputEvent::IE_Pressed, this, &AGCPlayerController::PreviousItem);
 	
 }
 
@@ -212,6 +214,22 @@ void AGCPlayerController::StopAiming()
 	if (CachedBaseCharacter.IsValid())
 	{
 		CachedBaseCharacter->StopAiming();
+	}
+}
+
+void AGCPlayerController::NextItem()
+{
+	if (CachedBaseCharacter.IsValid())
+	{
+		CachedBaseCharacter->NextItem();
+	}
+}
+
+void AGCPlayerController::PreviousItem()
+{
+	if (CachedBaseCharacter.IsValid())
+	{
+		CachedBaseCharacter->PreviousItem();
 	}
 }
 

@@ -32,6 +32,9 @@ public:
 	void StopAim();
 
 	void StartReload();
+
+	class AGCBaseCharacter* GetGCBaseCharacter() const;
+
 	void EndReload(bool bIsSuccess);
 
 	int32 GetAmmo() const;
@@ -117,6 +120,7 @@ private:
 	float GetShotTimerInterval() const;
 
 	float PlayAnimMontage(UAnimMontage* AnimMontage);
+	void StopAnimMontage(UAnimMontage* AnimMontage, float BlendOutTime = 0.0f);
 
 	FTimerHandle ShotTimer;
 	FTimerHandle ReloadTimer;
