@@ -25,6 +25,8 @@ public:
 	bool IsEquipping() const { return bIsEquipping; };
 
 	void ReloadCurrentWeapon();
+	
+	void ReloadAmmoInCurrentWeapon(int32 NumberOfAmmo = 0, bool bCheckIsFull = false);
 
 	FOnCurrentWeaponAmmoChanged OnCurrentWeaponAmmoChangedEvent;
 

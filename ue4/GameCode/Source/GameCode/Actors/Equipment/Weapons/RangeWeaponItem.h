@@ -16,6 +16,13 @@ enum class EWeaponFireMode : uint8
 	FullAuto
 };
 
+UENUM(BlueprintType)
+enum class EReloadType : uint8
+{
+	FullClip,
+	ByBullet
+};
+
 class UAnimMontage;
 UCLASS(Blueprintable)
 class GAMECODE_API ARangeWeaponItem : public AEquipableItem
@@ -69,6 +76,11 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations | Weapon")
 	UAnimMontage* WeaponReloadMontage;
+
+	// FullClip reload type adds ammo only when the whole animation is successfully played
+	// ByBullet reload type requires section "ReloadEnd" in character reload animation 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations | Weapon")
+	EReloadType ReloadType = EReloadType::FullClip;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations | Character")
 	UAnimMontage* CharacterFireMontage;
