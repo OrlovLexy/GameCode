@@ -122,10 +122,13 @@ private:
 
 	bool bIsAiming;
 	bool bIsReloading = false;
+	bool bIsFiring = false;
 
 	float GetCurrentBulletSpreadAngle() const;
 
 	void MakeShot();
+
+	void OnShotTimerElapsed();
 
 	float GetShotTimerInterval() const;
 
