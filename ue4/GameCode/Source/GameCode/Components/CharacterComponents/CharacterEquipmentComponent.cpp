@@ -1,6 +1,7 @@
 #include "CharacterEquipmentComponent.h"
 #include "Characters/GCBaseCharacter.h"
 #include "Actors/Equipment/Weapons/RangeWeaponItem.h"
+#include "Actors/Equipment/Throwables/ThrowableItem.h"
 
 EEquipableItemType UCharacterEquipmentComponent::GetCurrentEquipedItemType() const
 {
@@ -31,6 +32,11 @@ void UCharacterEquipmentComponent::ReloadCurrentWeapon()
 
 void UCharacterEquipmentComponent::EquipItemInSlot(EEquipmentSlots Slot)
 {
+	if (!IsValid(ItemsArray[(uint32)Slot]))
+	{
+		return;
+	}
+
 	if (bIsEquipping)
 	{
 		return;
@@ -40,6 +46,7 @@ void UCharacterEquipmentComponent::EquipItemInSlot(EEquipmentSlots Slot)
 
 	CurrentEquippedItem = ItemsArray[(uint32)Slot];
 	CurrentEquipedWeapon = Cast<ARangeWeaponItem>(CurrentEquippedItem);
+	CurrentThrowableItem = Cast<AThrowableItem>(CurrentEquippedItem);
 	if (IsValid(CurrentEquippedItem))
 	{
 		UAnimMontage* EquipMontage = CurrentEquippedItem->GetCharacterEquipAnimMontage();
@@ -69,6 +76,16 @@ void UCharacterEquipmentComponent::AttachCurrentItemToEquippedSocket()
 	CurrentEquippedItem->AttachToComponent(CachedBaseCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, CurrentEquippedItem->GetEquippedSocketName());
 }
 
+void UCharacterEquipmentComponent::LaunchCurrentThrowableItem()
+{
+	if (CurrentThrowableItem)
+	{
+		CurrentThrowableItem->Throw();
+		bIsEquipping = false;
+		EquipItemInSlot(PreviousEquipedSlot);
+	}
+}
+
 void UCharacterEquipmentComponent::UnEquipCurrentItem()
 {
 	if (IsValid(CurrentEquippedItem))
@@ -82,6 +99,8 @@ void UCharacterEquipmentComponent::UnEquipCurrentItem()
 		CurrentEquipedWeapon->OnAmmoChanged.Remove(OnCurrentWeaponAmmoChangedHandle);
 		CurrentEquipedWeapon->OnReloadComplete.Remove(OnCurrentWeaponReloadedHandle);
 	}
+
+	PreviousEquipedSlot = CurrentEquippedSlot;
 	CurrentEquippedSlot = EEquipmentSlots::None;
 }
 
@@ -89,7 +108,9 @@ void UCharacterEquipmentComponent::EquipNextItem()
 {
 	uint32 CurrentSlotIndex = (uint32)CurrentEquippedSlot;
 	uint32 NextSlotIndex = NextItemsArraySlotIndex(CurrentSlotIndex);
-	while (CurrentSlotIndex != NextSlotIndex && !IsValid(ItemsArray[NextSlotIndex]))
+	while (CurrentSlotIndex != NextSlotIndex 
+			&& IgnoreSlotsWhileSwitching.Contains((EEquipmentSlots)NextSlotIndex)
+			&& !IsValid(ItemsArray[NextSlotIndex]))
 	{
 		NextSlotIndex = NextItemsArraySlotIndex(NextSlotIndex);
 	}
@@ -103,7 +124,9 @@ void UCharacterEquipmentComponent::EquipPreviousItem()
 {
 	uint32 CurrentSlotIndex = (uint32)CurrentEquippedSlot;
 	uint32 PreviousSlotIndex = PreviousItemsArraySlotIndex(CurrentSlotIndex);
-	while (CurrentSlotIndex != PreviousSlotIndex && !IsValid(ItemsArray[PreviousSlotIndex]))
+	while (CurrentSlotIndex != PreviousSlotIndex 
+			&& IgnoreSlotsWhileSwitching.Contains((EEquipmentSlots)PreviousSlotIndex)
+			&& !IsValid(ItemsArray[PreviousSlotIndex]))
 	{
 		PreviousSlotIndex = PreviousItemsArraySlotIndex(PreviousSlotIndex);
 	}

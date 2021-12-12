@@ -210,6 +210,11 @@ void AGCBaseCharacter::PreviousItem()
 	CharacterEquipmentComponent->EquipPreviousItem();
 }
 
+void AGCBaseCharacter::EquipPrimaryItem()
+{
+	CharacterEquipmentComponent->EquipItemInSlot(EEquipmentSlots::PrimaryItemSlot);
+}
+
 void AGCBaseCharacter::Mantle(bool bForce /*= false*/)
 {
 	if (!(CanMantle() || bForce))

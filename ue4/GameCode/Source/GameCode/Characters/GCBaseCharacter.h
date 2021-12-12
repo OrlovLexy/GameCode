@@ -93,6 +93,7 @@ public:
 
 	void NextItem();
 	void PreviousItem();
+	void EquipPrimaryItem();
 
 	virtual void SwimForward(float Value) {};
 	virtual void SwimRight(float Value) {};

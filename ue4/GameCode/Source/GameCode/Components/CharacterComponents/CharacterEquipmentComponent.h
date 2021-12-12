@@ -12,6 +12,7 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnCurrentWeaponAmmoChanged, int32, int32)
 
 class ARangeWeaponItem;
 class AEquipableItem;
+class AThrowableItem;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GAMECODE_API UCharacterEquipmentComponent : public UActorComponent
 {
@@ -34,6 +35,8 @@ public:
 
 	void AttachCurrentItemToEquippedSocket();
 
+	void LaunchCurrentThrowableItem();
+
 	void UnEquipCurrentItem();
 
 	void EquipNextItem();
@@ -47,6 +50,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Loadout")
 	TMap<EEquipmentSlots, TSubclassOf<AEquipableItem>> ItemsLoadout;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Loadout")
+	TSet<EEquipmentSlots> IgnoreSlotsWhileSwitching;
 private:
 	TAmunitionArray AmunitionArray;
 	TItemsArray ItemsArray;
@@ -70,9 +76,12 @@ private:
 	FDelegateHandle OnCurrentWeaponAmmoChangedHandle;
 	FDelegateHandle OnCurrentWeaponReloadedHandle;
 
+	EEquipmentSlots PreviousEquipedSlot;
 	EEquipmentSlots CurrentEquippedSlot;
+
 	AEquipableItem* CurrentEquippedItem;
 	ARangeWeaponItem* CurrentEquipedWeapon;
+	AThrowableItem* CurrentThrowableItem;
 
 	TWeakObjectPtr<class AGCBaseCharacter> CachedBaseCharacter;
 

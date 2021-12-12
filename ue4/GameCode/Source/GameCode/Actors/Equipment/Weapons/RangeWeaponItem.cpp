@@ -65,7 +65,7 @@ void ARangeWeaponItem::StartReload()
 
 AGCBaseCharacter* ARangeWeaponItem::GetGCBaseCharacter() const
 {
-	checkf(GetOwner() - IsA<AGCBaseCharacter>(), TEXT("ARangeWeaponItem::GetGCBaseCharacter() only character can be an owner of range weapon"))
+	checkf(GetOwner() - IsA<AGCBaseCharacter>(), TEXT("ARangeWeaponItem::GetGCBaseCharacter only character can be an owner of a throwable item"))
 	return StaticCast<AGCBaseCharacter*>(GetOwner());
 }
 
@@ -183,7 +183,6 @@ void ARangeWeaponItem::MakeShot()
 	PlayAnimMontage(WeaponFireMontage);
 
 	APlayerController* Controller = CharacterOwner->GetController<APlayerController>();
-
 	if (!IsValid(Controller))
 	{
 		return;
