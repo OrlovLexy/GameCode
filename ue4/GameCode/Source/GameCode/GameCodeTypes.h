@@ -8,6 +8,8 @@ const FName FXParamTraceEnd = FName("TraceEnd");
 
 const FName SocketFPCamera = FName("CameraSocket");
 const FName SocketCharacterWeapon = FName("CharacterWeaponSocket");
+const FName SocketCharacterThrowable = FName("ThrowableSocket");
+
 const FName SocketWeaponMuzzle = FName("MuzzleSocket");
 const FName SocketWeaponForeGrip = FName("ForeGripSocket");
 
