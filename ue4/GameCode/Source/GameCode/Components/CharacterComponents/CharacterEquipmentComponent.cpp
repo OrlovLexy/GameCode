@@ -56,7 +56,10 @@ void UCharacterEquipmentComponent::EquipItemInSlot(EEquipmentSlots Slot)
 			AttachCurrentItemToEquippedSocket();
 		}
 		CurrentEquippedSlot = Slot;
-		CurrentThrowableItem->Equip();
+		if (IsValid(CurrentThrowableItem))
+		{
+			CurrentThrowableItem->Equip();
+		}
 	}
 
 	if (IsValid(CurrentEquipedWeapon))
@@ -90,7 +93,10 @@ void UCharacterEquipmentComponent::UnEquipCurrentItem()
 	if (IsValid(CurrentEquippedItem))
 	{
 		CurrentEquippedItem->AttachToComponent(CachedBaseCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, CurrentEquippedItem->GetUnEquippedSocketName());
-		CurrentThrowableItem->UnEquip();
+		if (IsValid(CurrentThrowableItem))
+		{
+			CurrentThrowableItem->UnEquip();
+		}
 	}
 	if (IsValid(CurrentEquipedWeapon))
 	{
@@ -108,9 +114,8 @@ void UCharacterEquipmentComponent::EquipNextItem()
 {
 	uint32 CurrentSlotIndex = (uint32)CurrentEquippedSlot;
 	uint32 NextSlotIndex = NextItemsArraySlotIndex(CurrentSlotIndex);
-	while (CurrentSlotIndex != NextSlotIndex 
-			&& !IgnoreSlotsWhileSwitching.Contains((EEquipmentSlots)NextSlotIndex)
-			&& !IsValid(ItemsArray[NextSlotIndex]))
+	while ((CurrentSlotIndex != NextSlotIndex && !IsValid(ItemsArray[NextSlotIndex]))
+			|| IgnoreSlotsWhileSwitching.Contains((EEquipmentSlots)NextSlotIndex))
 	{
 		NextSlotIndex = NextItemsArraySlotIndex(NextSlotIndex);
 	}
@@ -124,9 +129,8 @@ void UCharacterEquipmentComponent::EquipPreviousItem()
 {
 	uint32 CurrentSlotIndex = (uint32)CurrentEquippedSlot;
 	uint32 PreviousSlotIndex = PreviousItemsArraySlotIndex(CurrentSlotIndex);
-	while (CurrentSlotIndex != PreviousSlotIndex 
-			&& !IgnoreSlotsWhileSwitching.Contains((EEquipmentSlots)PreviousSlotIndex)
-			&& !IsValid(ItemsArray[PreviousSlotIndex]))
+	while ((CurrentSlotIndex != PreviousSlotIndex && !IsValid(ItemsArray[PreviousSlotIndex]))
+			|| IgnoreSlotsWhileSwitching.Contains((EEquipmentSlots)PreviousSlotIndex))
 	{
 		PreviousSlotIndex = PreviousItemsArraySlotIndex(PreviousSlotIndex);
 	}
