@@ -1,5 +1,5 @@
 #include "ExplosiveProjectile.h"
-#include "ExplosionComponent.h"
+#include "Components/ExplosionComponent.h"
 
 AExplosiveProjectile::AExplosiveProjectile()
 {
