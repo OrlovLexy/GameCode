@@ -9,6 +9,7 @@ typedef TArray<class AEquipableItem*, TInlineAllocator<(uint32)EEquipmentSlots::
 typedef TArray<int32, TInlineAllocator<(uint32)EAmunitionType::MAX>> TAmunitionArray;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnCurrentWeaponAmmoChanged, int32, int32)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnEquppedItemChanged, const AEquipableItem*)
 
 class ARangeWeaponItem;
 class AEquipableItem;
@@ -30,6 +31,8 @@ public:
 	void ReloadAmmoInCurrentWeapon(int32 NumberOfAmmo = 0, bool bCheckIsFull = false);
 
 	FOnCurrentWeaponAmmoChanged OnCurrentWeaponAmmoChangedEvent;
+
+	FOnEquppedItemChanged OnEquppedItemChanged;
 
 	void EquipItemInSlot(EEquipmentSlots Slot);
 

@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "RangeWeaponItem.h"
 #include "Components/Weapon/WeaponBarellComponent.h"
 #include "GameCodeTypes.h"
@@ -15,6 +12,8 @@ ARangeWeaponItem::ARangeWeaponItem()
 
 	WeaponBarell = CreateDefaultSubobject<UWeaponBarellComponent>(TEXT("WeaponBarell"));
 	WeaponBarell->SetupAttachment(WeaponMesh, SocketWeaponMuzzle);
+
+	ReticleType = EReticleType::Default;
 
 	EquippedSocketName = SocketCharacterWeapon;
 }
@@ -149,6 +148,11 @@ float ARangeWeaponItem::GetAimMovementMaxSpeed() const
 FTransform ARangeWeaponItem::GetForeGripTransform() const
 {
 	return WeaponMesh->GetSocketTransform(SocketWeaponForeGrip);
+}
+
+EReticleType ARangeWeaponItem::GetReticleType() const
+{
+	return bIsAiming ? AimReticleType : ReticleType;
 }
 
 void ARangeWeaponItem::BeginPlay()

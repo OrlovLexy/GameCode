@@ -1,9 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Actors/Equipment/EquipableItem.h"
+#include "GameCodeTypes.h"
 #include "RangeWeaponItem.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnReloadComplete)
@@ -62,6 +61,8 @@ public:
 
 	FOnReloadComplete OnReloadComplete;
 
+	virtual EReticleType GetReticleType() const;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -117,8 +118,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Parameters | Ammo")
 	bool bAutoReload = true;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Reticle")
+	EReticleType AimReticleType = EReticleType::Default;
+
 private:
-	int32 Ammo;
+	int32 Ammo = 0;
 
 	bool bIsAiming;
 	bool bIsReloading = false;

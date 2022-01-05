@@ -27,6 +27,36 @@ void AGCPlayerController::SetIgnoreCameraPitch(bool bIgnoreCameraPitch_In)
 	bIgnoreCameraPitch = bIgnoreCameraPitch_In;
 }
 
+void AGCPlayerController::CreateAndInitializeWidgets()
+{
+	if (!IsValid(PlayerHUDWidget))
+	{
+		PlayerHUDWidget = CreateWidget<UPlayerHUDWidget>(GetWorld(), PlayerHUDWidgetClass);
+
+		if (IsValid(PlayerHUDWidget))
+		{
+			PlayerHUDWidget->AddToViewport();
+		}
+	}
+	if (IsValid(PlayerHUDWidget) && CachedBaseCharacter.IsValid())
+	{
+		UReticleWidget* ReticleWidget = PlayerHUDWidget->GetReticleWidget();
+		if (IsValid(ReticleWidget))
+		{
+			CachedBaseCharacter->OnAimingStateChanged.AddUFunction(ReticleWidget, FName("OnAimingStateChanged"));
+			UCharacterEquipmentComponent* CharacterEquipment = CachedBaseCharacter->GetCharacterEquipmentComponent_Mutable();
+			CharacterEquipment->OnEquppedItemChanged.AddUFunction(ReticleWidget, FName("OnEquippedItemChanged"));
+		}
+
+		UAmmoWidget* AmmoWidget = PlayerHUDWidget->GetAmmoWidget();
+		if (IsValid(AmmoWidget))
+		{
+			UCharacterEquipmentComponent* CharacterEquipment = CachedBaseCharacter->GetCharacterEquipmentComponent_Mutable();
+			CharacterEquipment->OnCurrentWeaponAmmoChangedEvent.AddUFunction(AmmoWidget, FName("UpdateAmmoCount"));
+		}
+	}
+}
+
 void AGCPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -247,34 +277,6 @@ void AGCPlayerController::Reload()
 	if (CachedBaseCharacter.IsValid())
 	{
 		CachedBaseCharacter->Reload();
-	}
-}
-
-void AGCPlayerController::CreateAndInitializeWidgets()
-{
-	if (!IsValid(PlayerHUDWidget))
-	{
-		PlayerHUDWidget = CreateWidget<UPlayerHUDWidget>(GetWorld(), PlayerHUDWidgetClass);
-
-		if (IsValid(PlayerHUDWidget))
-		{
-			PlayerHUDWidget->AddToViewport();
-		}
-	}
-	if (IsValid(PlayerHUDWidget) && CachedBaseCharacter.IsValid())
-	{
-		UReticleWidget* ReticleWidget = PlayerHUDWidget->GetReticleWidget();
-		if (IsValid(ReticleWidget))
-		{
-			CachedBaseCharacter->OnAimingStateChanged.AddUFunction(ReticleWidget, FName("OnAimingStateChanged"));
-		}
-
-		UAmmoWidget* AmmoWidget = PlayerHUDWidget->GetAmmoWidget();
-		if (IsValid(AmmoWidget))
-		{
-			UCharacterEquipmentComponent* CharacterEquipment = CachedBaseCharacter->GetCharacterEquipmentComponent_Mutable();
-			CharacterEquipment->OnCurrentWeaponAmmoChangedEvent.AddUFunction(AmmoWidget, FName("UpdateAmmoCount"));
-		}
 	}
 }
 

@@ -163,7 +163,7 @@ void AGCBaseCharacter::StopAiming()
 		return;
 	}
 	ARangeWeaponItem* CurrentRangeWeapon = GetCharacterEquipmentComponent()->GetCurrentRangeWeapon();
-	if (!IsValid(CurrentRangeWeapon))
+	if (IsValid(CurrentRangeWeapon))
 	{
 		CurrentRangeWeapon->StopAim();
 	}
