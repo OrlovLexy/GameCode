@@ -10,7 +10,7 @@ AExplosiveProjectile::AExplosiveProjectile()
 void AExplosiveProjectile::OnProjectileLaunched()
 {
 	Super::OnProjectileLaunched();
-	GetWorld()->GetTimerManager().SetTimer(DetonationTimer, this, &AExplosiveProjectile::OnDetonationTimerElapsed, DetonationTime, false); 
+	GetWorld()->GetTimerManager().SetTimer(DetonationTimer, this, &AExplosiveProjectile::OnDetonationTimerElapsed, DetonationTime, false);
 }
 
 void AExplosiveProjectile::OnDetonationTimerElapsed()

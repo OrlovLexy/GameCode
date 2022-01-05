@@ -197,7 +197,7 @@ void ARangeWeaponItem::MakeShot()
 
 	SetAmmo(Ammo - 1);
 
-	WeaponBarell->Shot(PlayerViewPoint, ViewDirection, Controller, GetCurrentBulletSpreadAngle());
+	WeaponBarell->Shot(PlayerViewPoint, ViewDirection, GetCurrentBulletSpreadAngle());
 
 	GetWorld()->GetTimerManager().SetTimer(ShotTimer, this, &ARangeWeaponItem::OnShotTimerElapsed, GetShotTimerInterval(), false);
 }
