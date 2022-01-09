@@ -4,8 +4,11 @@
 
 void AThrowableItem::Throw()
 {
-	checkf(GetOwner() - IsA<AGCBaseCharacter>(), TEXT("AThrowableItem::Throw only character can be an owner of range weapon"))
-	AGCBaseCharacter* CharacterOwner = StaticCast<AGCBaseCharacter*>(GetOwner());
+	AGCBaseCharacter* CharacterOwner = GetCharacterOwner();
+	if (!IsValid(CharacterOwner))
+	{
+		return;
+	}
 
 	APlayerController* Controller = CharacterOwner->GetController<APlayerController>();
 	if (!IsValid(Controller))

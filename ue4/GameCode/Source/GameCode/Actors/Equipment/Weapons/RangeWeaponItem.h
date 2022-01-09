@@ -39,8 +39,6 @@ public:
 
 	void StartReload();
 
-	class AGCBaseCharacter* GetGCBaseCharacter() const;
-
 	void EndReload(bool bIsSuccess);
 
 	int32 GetAmmo() const;

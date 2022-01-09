@@ -8,11 +8,14 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEquipmentStateChanged, bool, bIsEquiped);
 
 class UAnimMontage;
+class AGCBaseCharacter;
 UCLASS(Abstract, NotBlueprintable)
 class GAMECODE_API AEquipableItem : public AActor
 {
 	GENERATED_BODY()
 public:
+	virtual void SetOwner(AActor* NewOwner) override;
+
 	EEquipableItemType GetItemType() const { return ItemType; };
 
 	UAnimMontage* GetCharacterEquipAnimMontage() const { return CharacterEquipAnimMontage; };
@@ -43,4 +46,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Reticle")
 	EReticleType ReticleType = EReticleType::None;
+
+	AGCBaseCharacter* GetCharacterOwner() const;
+
+
+private:
+	TWeakObjectPtr<AGCBaseCharacter> CachedCharacterOwner;
 };

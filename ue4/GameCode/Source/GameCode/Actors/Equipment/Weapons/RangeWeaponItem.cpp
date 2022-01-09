@@ -45,7 +45,11 @@ void ARangeWeaponItem::StopAim()
 
 void ARangeWeaponItem::StartReload()
 {
-	AGCBaseCharacter* CharacterOwner = GetGCBaseCharacter();
+	AGCBaseCharacter* CharacterOwner = GetCharacterOwner();
+	if (!IsValid(CharacterOwner))
+	{
+		return;
+	}
 	bIsReloading = true;
 	if (IsValid(CharacterReloadMontage))
 	{
@@ -62,12 +66,6 @@ void ARangeWeaponItem::StartReload()
 	}
 }
 
-AGCBaseCharacter* ARangeWeaponItem::GetGCBaseCharacter() const
-{
-	checkf(GetOwner() - IsA<AGCBaseCharacter>(), TEXT("ARangeWeaponItem::GetGCBaseCharacter only character can be an owner of a throwable item"))
-	return StaticCast<AGCBaseCharacter*>(GetOwner());
-}
-
 void ARangeWeaponItem::EndReload(bool bIsSuccess)
 {
 	if (!bIsReloading)
@@ -75,17 +73,20 @@ void ARangeWeaponItem::EndReload(bool bIsSuccess)
 		return;
 	}
 
+	AGCBaseCharacter* CharacterOwner = GetCharacterOwner();
+
 	if (!bIsSuccess)
 	{
-		AGCBaseCharacter* CharacterOwner = GetGCBaseCharacter();
-		CharacterOwner->StopAnimMontage(CharacterReloadMontage);
+		if (IsValid(CharacterOwner))
+		{
+			CharacterOwner->StopAnimMontage(CharacterReloadMontage);
+		}
 		StopAnimMontage(WeaponReloadMontage);
 	}
 	
 	if (ReloadType == EReloadType::ByBullet)
 	{
-		AGCBaseCharacter* CharacterOwner = GetGCBaseCharacter();
-		UAnimInstance* CharacterAnimInstance = CharacterOwner->GetMesh()->GetAnimInstance();
+		UAnimInstance* CharacterAnimInstance = IsValid(CharacterOwner) ? CharacterOwner->GetMesh()->GetAnimInstance() : nullptr;
 		if (IsValid(CharacterAnimInstance))
 		{
 			CharacterAnimInstance->Montage_JumpToSection(SectionMontageReloadEnd, CharacterReloadMontage);
@@ -169,7 +170,11 @@ float ARangeWeaponItem::GetCurrentBulletSpreadAngle() const
 
 void ARangeWeaponItem::MakeShot()
 {
-	AGCBaseCharacter* CharacterOwner = GetGCBaseCharacter();
+	AGCBaseCharacter* CharacterOwner = GetCharacterOwner();
+	if (!IsValid(CharacterOwner))
+	{
+		return;
+	}
 
 	if (!CanShoot())
 	{
