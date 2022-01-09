@@ -160,6 +160,9 @@ public:
 	virtual void Landed(const FHitResult& Hit) override;
 	virtual void NotifyJumpApex() override;
 
+	void PrimaryMeleeAttack();
+	void SecondaryMeleeAttack();
+
 protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Character | Movement")
 	void OnSprintStart();

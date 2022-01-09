@@ -14,6 +14,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnEquppedItemChanged, const AEquipableItem*
 class ARangeWeaponItem;
 class AEquipableItem;
 class AThrowableItem;
+class AMeleeWeaponItem;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GAMECODE_API UCharacterEquipmentComponent : public UActorComponent
 {
@@ -23,6 +24,8 @@ public:
 	EEquipableItemType GetCurrentEquipedItemType() const;
 
 	ARangeWeaponItem* GetCurrentRangeWeapon() const;
+
+	AMeleeWeaponItem* GetCurrentMeleeWeapon() const;
 
 	bool IsEquipping() const { return bIsEquipping; };
 
@@ -85,6 +88,7 @@ private:
 	AEquipableItem* CurrentEquippedItem;
 	ARangeWeaponItem* CurrentEquipedWeapon;
 	AThrowableItem* CurrentThrowableItem;
+	AMeleeWeaponItem* CurrentMeleeWeapon;
 
 	TWeakObjectPtr<class AGCBaseCharacter> CachedBaseCharacter;
 

@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "GCPlayerController.h"
 #include "../GCBaseCharacter.h"
 #include "Blueprint/UserWidget.h"
@@ -85,6 +82,8 @@ void AGCPlayerController::SetupInputComponent()
 	InputComponent->BindAction("NextItem", EInputEvent::IE_Pressed, this, &AGCPlayerController::NextItem);
 	InputComponent->BindAction("PreviousItem", EInputEvent::IE_Pressed, this, &AGCPlayerController::PreviousItem);
 	InputComponent->BindAction("EquipPrimaryItem", EInputEvent::IE_Pressed, this, &AGCPlayerController::EquipPrimaryItem);
+	InputComponent->BindAction("PrimaryMeleeAttack", EInputEvent::IE_Pressed, this, &AGCPlayerController::PrimaryMeleeAttack);
+	InputComponent->BindAction("SecondaryMeleeAttack", EInputEvent::IE_Pressed, this, &AGCPlayerController::SecondaryMeleeAttack);
 	
 }
 
@@ -277,6 +276,22 @@ void AGCPlayerController::Reload()
 	if (CachedBaseCharacter.IsValid())
 	{
 		CachedBaseCharacter->Reload();
+	}
+}
+
+void AGCPlayerController::PrimaryMeleeAttack()
+{
+	if (CachedBaseCharacter.IsValid())
+	{
+		CachedBaseCharacter->PrimaryMeleeAttack();
+	}
+}
+
+void AGCPlayerController::SecondaryMeleeAttack()
+{
+	if (CachedBaseCharacter.IsValid())
+	{
+		CachedBaseCharacter->SecondaryMeleeAttack();
 	}
 }
 

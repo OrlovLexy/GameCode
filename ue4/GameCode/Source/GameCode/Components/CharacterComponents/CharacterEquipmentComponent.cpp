@@ -2,6 +2,7 @@
 #include "Characters/GCBaseCharacter.h"
 #include "Actors/Equipment/Weapons/RangeWeaponItem.h"
 #include "Actors/Equipment/Throwables/ThrowableItem.h"
+#include "Actors/Equipment/Weapons/MeleeWeaponItem.h"
 
 EEquipableItemType UCharacterEquipmentComponent::GetCurrentEquipedItemType() const
 {
@@ -16,6 +17,11 @@ EEquipableItemType UCharacterEquipmentComponent::GetCurrentEquipedItemType() con
 ARangeWeaponItem* UCharacterEquipmentComponent::GetCurrentRangeWeapon() const
 {
 	return CurrentEquipedWeapon;
+}
+
+AMeleeWeaponItem* UCharacterEquipmentComponent::GetCurrentMeleeWeapon() const
+{
+	return CurrentMeleeWeapon;
 }
 
 void UCharacterEquipmentComponent::ReloadCurrentWeapon()
@@ -42,6 +48,7 @@ void UCharacterEquipmentComponent::EquipItemInSlot(EEquipmentSlots Slot)
 	CurrentEquippedItem = ItemsArray[(uint32)Slot];
 	CurrentEquipedWeapon = Cast<ARangeWeaponItem>(CurrentEquippedItem);
 	CurrentThrowableItem = Cast<AThrowableItem>(CurrentEquippedItem);
+	CurrentMeleeWeapon = Cast<AMeleeWeaponItem>(CurrentEquippedItem);
 	if (IsValid(CurrentEquippedItem))
 	{
 		UAnimMontage* EquipMontage = CurrentEquippedItem->GetCharacterEquipAnimMontage();

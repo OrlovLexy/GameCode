@@ -16,6 +16,7 @@
 #include "Components/CharacterComponents/CharacterAttributeComponent.h"
 #include "Components/CharacterComponents/CharacterEquipmentComponent.h"
 #include "Actors/Equipment/Weapons/RangeWeaponItem.h"
+#include "Actors/Equipment/Weapons/MeleeWeaponItem.h"
 
 AGCBaseCharacter::AGCBaseCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGCBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -502,6 +503,25 @@ void AGCBaseCharacter::NotifyJumpApex()
 	Super::NotifyJumpApex();
 	CurrentFallApex = GetActorLocation();
 }
+
+void AGCBaseCharacter::PrimaryMeleeAttack()
+{
+	AMeleeWeaponItem* CurrentMeleeWeapon = CharacterEquipmentComponent->GetCurrentMeleeWeapon();
+	if (IsValid(CurrentMeleeWeapon))
+	{
+		CurrentMeleeWeapon->StartAttack(EMeleeAttackTypes::PrimaryAttack);
+	}
+}
+
+void AGCBaseCharacter::SecondaryMeleeAttack()
+{
+	AMeleeWeaponItem* CurrentMeleeWeapon = CharacterEquipmentComponent->GetCurrentMeleeWeapon();
+	if (IsValid(CurrentMeleeWeapon))
+	{
+		CurrentMeleeWeapon->StartAttack(EMeleeAttackTypes::SecondaryAttack);
+	}
+}
+
 
 void AGCBaseCharacter::Prone()
 {

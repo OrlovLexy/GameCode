@@ -1,14 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "GCPlayerController.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class GAMECODE_API AGCPlayerController : public APlayerController
 {
@@ -59,6 +54,9 @@ private:
 	void EquipPrimaryItem();
 
 	void Reload();
+
+	void PrimaryMeleeAttack();
+	void SecondaryMeleeAttack();
 
 	TSoftObjectPtr<class AGCBaseCharacter> CachedBaseCharacter;
 	
