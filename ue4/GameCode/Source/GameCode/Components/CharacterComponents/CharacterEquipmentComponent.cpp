@@ -7,9 +7,9 @@
 EEquipableItemType UCharacterEquipmentComponent::GetCurrentEquipedItemType() const
 {
 	EEquipableItemType Result = EEquipableItemType::None;
-	if (IsValid(CurrentEquipedWeapon))
+	if (IsValid(CurrentEquippedItem))
 	{
-		Result = CurrentEquipedWeapon->GetItemType();
+		Result = CurrentEquippedItem->GetItemType();
 	}
 	return Result;
 }
@@ -63,10 +63,7 @@ void UCharacterEquipmentComponent::EquipItemInSlot(EEquipmentSlots Slot)
 			AttachCurrentItemToEquippedSocket();
 		}
 		CurrentEquippedSlot = Slot;
-		if (IsValid(CurrentThrowableItem))
-		{
-			CurrentThrowableItem->Equip();
-		}
+		CurrentEquippedItem->Equip();
 	}
 
 	if (IsValid(CurrentEquipedWeapon))
@@ -105,10 +102,7 @@ void UCharacterEquipmentComponent::UnEquipCurrentItem()
 	if (IsValid(CurrentEquippedItem))
 	{
 		CurrentEquippedItem->AttachToComponent(CachedBaseCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, CurrentEquippedItem->GetUnEquippedSocketName());
-		if (IsValid(CurrentThrowableItem))
-		{
-			CurrentThrowableItem->UnEquip();
-		}
+		CurrentEquippedItem->UnEquip();
 	}
 	if (IsValid(CurrentEquipedWeapon))
 	{

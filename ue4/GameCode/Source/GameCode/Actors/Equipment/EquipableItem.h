@@ -5,7 +5,7 @@
 #include "GameCodeTypes.h"
 #include "EquipableItem.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEquipmentStateChanged, bool, bIsEquiped);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEquipmentStateChanged, bool, bIsEquipped);
 
 class UAnimMontage;
 class AGCBaseCharacter;
