@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "GCBaseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/MovementComponents/GCBaseCharacterMovementComponent.h"
@@ -17,6 +14,7 @@
 #include "Components/CharacterComponents/CharacterEquipmentComponent.h"
 #include "Actors/Equipment/Weapons/RangeWeaponItem.h"
 #include "Actors/Equipment/Weapons/MeleeWeaponItem.h"
+#include "AIController.h"
 
 AGCBaseCharacter::AGCBaseCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGCBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -39,6 +37,17 @@ void AGCBaseCharacter::BeginPlay()
 	PronedEyeHeight = GCBaseCharacterMovementComponent->PronedHalfHeight * 0.80f;
 
 	CharacterAttributesComponent->OnDeathEvent.AddUObject(this, &AGCBaseCharacter::OnDeath);
+}
+
+void AGCBaseCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	AAIController* AIController = Cast<AAIController>(NewController);
+	if (IsValid(AIController))
+	{
+		FGenericTeamId TeamId((uint8)Team);
+		AIController->SetGenericTeamId(TeamId);
+	}
 }
 
 void AGCBaseCharacter::Jump()
@@ -522,6 +531,11 @@ void AGCBaseCharacter::SecondaryMeleeAttack()
 	}
 }
 
+
+FGenericTeamId AGCBaseCharacter::GetGenericTeamId() const
+{
+	return FGenericTeamId((uint8)Team);
+}
 
 void AGCBaseCharacter::Prone()
 {

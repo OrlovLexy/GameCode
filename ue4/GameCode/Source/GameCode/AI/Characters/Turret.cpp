@@ -1,5 +1,6 @@
 #include "Turret.h"
-#include "../../Components/Weapon/WeaponBarellComponent.h"
+#include "Components/Weapon/WeaponBarellComponent.h"
+#include "AIController.h"
 
 ATurret::ATurret()
 {
@@ -18,6 +19,17 @@ ATurret::ATurret()
 	WeaponBarell->SetupAttachment(TurretBarellComponent);
 }
 
+
+void ATurret::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	AAIController* AIController = Cast<AAIController>(NewController);
+	if (IsValid(AIController))
+	{
+		FGenericTeamId TeamId((uint8)Team);
+		AIController->SetGenericTeamId(TeamId);
+	}
+}
 
 void ATurret::Tick(float DeltaTime)
 {

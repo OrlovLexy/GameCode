@@ -1,9 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameCodeTypes.h"
+#include "GenericTeamAgentInterface.h"
 #include "GCBaseCharacter.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAimingStateChanged, bool)
@@ -48,7 +48,7 @@ struct FMantlingSettings
 };
 
 UCLASS(Abstract, NotBlueprintable)
-class GAMECODE_API AGCBaseCharacter : public ACharacter
+class GAMECODE_API AGCBaseCharacter : public ACharacter, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -56,6 +56,8 @@ public:
 	AGCBaseCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay() override;
+
+	virtual void PossessedBy(AController* NewController) override;
 
 	virtual void MoveForward(float Value) {};
 	virtual void MoveRight(float Value) {};
@@ -163,6 +165,11 @@ public:
 	void PrimaryMeleeAttack();
 	void SecondaryMeleeAttack();
 
+/** IGenericTeamAgentInterface */
+	virtual FGenericTeamId GetGenericTeamId() const override;
+/** ~IGenericTeamAgentInterface */
+
+
 protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Character | Movement")
 	void OnSprintStart();
@@ -234,6 +241,9 @@ protected:
 
 	virtual void OnStartAimingInternal();
 	virtual void OnStopAimingInternal();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Team")
+	ETeams Team = ETeams::Enemy;
 	
 private:
 	void TryChangeSprintState(float DeltaSeconds);
