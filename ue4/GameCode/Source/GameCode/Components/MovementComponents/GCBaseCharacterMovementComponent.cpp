@@ -1,12 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "GCBaseCharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 #include "Curves/CurveVector.h"
-#include "../../Actors/Interactive/Environment/Ladder.h"
-#include "../../Characters/GCBaseCharacter.h"
+#include "Actors/Interactive/Environment/Ladder.h"
+#include "Characters/GCBaseCharacter.h"
 
 void UGCBaseCharacterMovementComponent::PhysCustom(float DeltaTime, int32 Iterations)
 {
@@ -81,13 +78,6 @@ void UGCBaseCharacterMovementComponent::PhysLadder(float DeltaTime, int32 Iterat
 	SafeMoveUpdatedComponent(Delta, GetOwner()->GetActorRotation(), true, Hit);
 }
 
-void UGCBaseCharacterMovementComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	checkf(GetOwner()->IsA<AGCBaseCharacter>(), TEXT("UGCBaseCharacterMovementComponent can work only with AGCBaseCharacter"));
-	GCBaseCharacter = StaticCast<AGCBaseCharacter*>(GetOwner());
-}
 float UGCBaseCharacterMovementComponent::GetMaxSpeed() const
 {
 	float Result = Super::GetMaxSpeed();
@@ -169,7 +159,7 @@ void UGCBaseCharacterMovementComponent::PhysicsRotation(float DeltaTime)
 
 bool UGCBaseCharacterMovementComponent::IsProning() const
 {
-	return GCBaseCharacter->bIsProned;
+	return GetBaseCharacterOwner()->bIsProned;
 }
 
 void UGCBaseCharacterMovementComponent::StartSprint()
@@ -216,10 +206,10 @@ void UGCBaseCharacterMovementComponent::Prone()
 	// See if collision is already at desired size.
 	if (CharacterOwner->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() == PronedHalfHeight)
 	{
-		GCBaseCharacter->bIsProned = true;
+		GetBaseCharacterOwner()->bIsProned = true;
 		bWantsToCrouch = false;
-		GCBaseCharacter->bIsCrouched = false;
-		GCBaseCharacter->OnStartProne(0.0f, 0.0f);
+		GetBaseCharacterOwner()->bIsCrouched = false;
+		GetBaseCharacterOwner()->OnStartProne(0.0f, 0.0f);
 		return;
 	}
 	const float ComponentScale = CharacterOwner->GetCapsuleComponent()->GetShapeScale();
@@ -249,16 +239,16 @@ void UGCBaseCharacterMovementComponent::Prone()
 		// Intentionally not using MoveUpdatedComponent, where a horizontal plane constraint would prevent the base of the capsule from staying at the same spot.
 		UpdatedComponent->MoveComponent(FVector(0.f, 0.f, -ScaledHalfHeightAdjust), UpdatedComponent->GetComponentQuat(), true, nullptr, EMoveComponentFlags::MOVECOMP_NoFlags, ETeleportType::TeleportPhysics);
 	}
-	GCBaseCharacter->bIsProned = true;
+	GetBaseCharacterOwner()->bIsProned = true;
 	bWantsToCrouch = false;
-	GCBaseCharacter->bIsCrouched = false;
+	GetBaseCharacterOwner()->bIsCrouched = false;
 	bForceNextFloorCheck = true;
 	ACharacter* DefaultCharacter = CharacterOwner->GetClass()->GetDefaultObject<ACharacter>();
 	HalfHeightAdjust = (DefaultCharacter->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() - CrouchedHalfHeight - ClampedPronedHalfHeight);
 	ScaledHalfHeightAdjust = HalfHeightAdjust * ComponentScale;
 
 	AdjustProxyCapsuleSize();
-	GCBaseCharacter->OnStartProne(HalfHeightAdjust, ScaledHalfHeightAdjust);
+	GetBaseCharacterOwner()->OnStartProne(HalfHeightAdjust, ScaledHalfHeightAdjust);
 
 }
 
@@ -276,10 +266,10 @@ void UGCBaseCharacterMovementComponent::UnProne()
 	// See if collision is already at desired size.
 	if (CharacterOwner->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() == DesiredHeight)
 	{
-		GCBaseCharacter->bIsProned = false;
+		GetBaseCharacterOwner()->bIsProned = false;
 		bWantsToCrouch = !bIsFullHeight;
-		GCBaseCharacter->bIsCrouched = !bIsFullHeight;
-		GCBaseCharacter->OnEndProne(0.f, 0.f);
+		GetBaseCharacterOwner()->bIsCrouched = !bIsFullHeight;
+		GetBaseCharacterOwner()->OnEndProne(0.f, 0.f);
 		return;
 	}
 
@@ -379,9 +369,9 @@ void UGCBaseCharacterMovementComponent::UnProne()
 		return;
 	}
 
-	GCBaseCharacter->bIsProned = false;
+	GetBaseCharacterOwner()->bIsProned = false;
 	bWantsToCrouch = !bIsFullHeight;
-	GCBaseCharacter->bIsCrouched = !bIsFullHeight;
+	GetBaseCharacterOwner()->bIsCrouched = !bIsFullHeight;
 
 	// Now call SetCapsuleSize() to cause touch/untouch events and actually grow the capsule
 	CharacterOwner->GetCapsuleComponent()->SetCapsuleSize(DefaultCharacter->GetCapsuleComponent()->GetUnscaledCapsuleRadius(), DesiredHeight, true);
@@ -391,7 +381,7 @@ void UGCBaseCharacterMovementComponent::UnProne()
 	ScaledHalfHeightAdjust = HalfHeightAdjust * ComponentScale;
 
 	AdjustProxyCapsuleSize();
-	GCBaseCharacter->OnEndProne(HalfHeightAdjust, ScaledHalfHeightAdjust);
+	GetBaseCharacterOwner()->OnEndProne(HalfHeightAdjust, ScaledHalfHeightAdjust);
 }
 
 void UGCBaseCharacterMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)

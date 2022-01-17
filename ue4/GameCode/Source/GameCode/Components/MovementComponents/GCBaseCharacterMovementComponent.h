@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "../../Characters/GCBaseCharacter.h"
 #include "../LedgeDetectorComponent.h"
 #include "GCBaseCharacterMovementComponent.generated.h"
 
@@ -101,11 +100,7 @@ protected:
 
 	void PhysLadder(float DeltaTime, int32 Iterations);
 
-	virtual void BeginPlay() override;
-
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
-
-	AGCBaseCharacter* GCBaseCharacter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character movement: sprint", meta =(ClampMin = 0.0f, UIMin = 0.0f))
 	float SprintSpeed = 1200.0f;
