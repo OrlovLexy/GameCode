@@ -103,6 +103,7 @@ public:
 
 	bool bCanJump = true;
 
+	UFUNCTION(BlueprintCallable)
 	void Mantle(bool bForce = false);
 
 	virtual void OnMantle(const FMantlingSettings& MantlingSettings, float MantlingAnimationStartTime);
