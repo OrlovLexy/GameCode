@@ -59,11 +59,17 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Loadout")
 	TSet<EEquipmentSlots> IgnoreSlotsWhileSwitching;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loadout")
+	EEquipmentSlots AutoEquipItemInSlot = EEquipmentSlots::None;
+
 private:
 	TAmunitionArray AmunitionArray;
 	TItemsArray ItemsArray;
 
 	void CreateLoadout();
+
+	void AutoEquip();
 
 	void EquipAnimationFinished();
 

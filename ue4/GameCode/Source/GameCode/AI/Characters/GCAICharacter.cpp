@@ -11,3 +11,8 @@ UAIPatrollingComponent* AGCAICharacter::GetAIPatrollingComponent() const
 {
 	return AIPatrollingComponent;
 }
+
+UBehaviorTree* AGCAICharacter::GetBehaviorTree() const
+{
+	return BehaviorTree;
+}

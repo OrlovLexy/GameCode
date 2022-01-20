@@ -33,6 +33,11 @@ void ARangeWeaponItem::StopFire()
 	bIsFiring = false;
 }
 
+bool ARangeWeaponItem::IsFiring() const
+{
+	return bIsFiring;
+}
+
 void ARangeWeaponItem::StartAim()
 {
 	bIsAiming = true;
@@ -105,6 +110,11 @@ void ARangeWeaponItem::EndReload(bool bIsSuccess)
 	{
 		OnReloadComplete.Broadcast();
 	}
+}
+
+bool ARangeWeaponItem::IsReloading() const
+{
+	return bIsReloading;
 }
 
 int32 ARangeWeaponItem::GetAmmo() const
@@ -191,22 +201,24 @@ void ARangeWeaponItem::MakeShot()
 	CharacterOwner->PlayAnimMontage(CharacterFireMontage);
 	PlayAnimMontage(WeaponFireMontage);
 
-	APlayerController* Controller = CharacterOwner->GetController<APlayerController>();
-	if (!IsValid(Controller))
+	FVector ShotLocation;
+	FRotator ShotRotation;
+	if (CharacterOwner->IsPlayerControlled())
 	{
-		return;
+		APlayerController* Controller = CharacterOwner->GetController<APlayerController>();
+		Controller->GetPlayerViewPoint(ShotLocation, ShotRotation);
+	}
+	else
+	{
+		ShotLocation = WeaponBarell->GetComponentLocation();
+		ShotRotation = CharacterOwner->GetBaseAimRotation();
 	}
 
-	FVector PlayerViewPoint;
-	FRotator PlayerViewRotation;
-
-	Controller->GetPlayerViewPoint(PlayerViewPoint, PlayerViewRotation);
-
-	FVector ViewDirection = PlayerViewRotation.RotateVector(FVector::ForwardVector);
+	FVector ShotDirection = ShotRotation.RotateVector(FVector::ForwardVector);
 
 	SetAmmo(Ammo - 1);
 
-	WeaponBarell->Shot(PlayerViewPoint, ViewDirection, GetCurrentBulletSpreadAngle());
+	WeaponBarell->Shot(ShotLocation, ShotDirection, GetCurrentBulletSpreadAngle());
 
 	GetWorld()->GetTimerManager().SetTimer(ShotTimer, this, &ARangeWeaponItem::OnShotTimerElapsed, GetShotTimerInterval(), false);
 }

@@ -33,13 +33,14 @@ public:
 
 	void StartFire();
 	void StopFire();
+	bool IsFiring() const;
 
 	void StartAim();
 	void StopAim();
 
 	void StartReload();
-
 	void EndReload(bool bIsSuccess);
+	bool IsReloading() const;
 
 	int32 GetAmmo() const;
 	void SetAmmo(int32 NewAmmo);

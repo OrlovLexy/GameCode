@@ -154,6 +154,7 @@ void UCharacterEquipmentComponent::BeginPlay()
 	CachedBaseCharacter = StaticCast<AGCBaseCharacter*>(GetOwner());
 
 	CreateLoadout();
+	AutoEquip();
 }
 
 void UCharacterEquipmentComponent::CreateLoadout()
@@ -176,6 +177,14 @@ void UCharacterEquipmentComponent::CreateLoadout()
 		Item->SetOwner(CachedBaseCharacter.Get());
 		Item->UnEquip();
 		ItemsArray[(uint32)ItemPair.Key] = Item;
+	}
+}
+
+void UCharacterEquipmentComponent::AutoEquip()
+{
+	if (AutoEquipItemInSlot != EEquipmentSlots::None)
+	{
+		EquipItemInSlot(AutoEquipItemInSlot);
 	}
 }
 
