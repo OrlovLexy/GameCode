@@ -1,12 +1,23 @@
 #include "PlatformTrigger.h"
 #include "GameCodeTypes.h"
 #include "Components/BoxComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "Characters/GCBaseCharacter.h"
 
 APlatformTrigger::APlatformTrigger()
 {
+	bReplicates = true;
+	NetUpdateFrequency = 2.0f;
+	MinNetUpdateFrequency = 2.0f;
 	TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox"));
 	TriggerBox->SetCollisionProfileName(CollisionProfilePawnInteractionVolume);
 	SetRootComponent(TriggerBox);
+}
+
+void APlatformTrigger::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APlatformTrigger, bIsActivated);
 }
 
 void APlatformTrigger::BeginPlay()
@@ -18,41 +29,53 @@ void APlatformTrigger::BeginPlay()
 
 void APlatformTrigger::SetIsActivated(bool bIsActivated_In)
 {
-	bIsActivated = bIsActivated_In;
 	if (OnTriggerActivated.IsBound())
 	{
-		OnTriggerActivated.Broadcast(bIsActivated);
+		OnTriggerActivated.Broadcast(bIsActivated_In);
 	}
+}
+
+void APlatformTrigger::OnRep_IsActivated(bool bIsActivated_Old)
+{
+	SetIsActivated(bIsActivated);
 }
 
 void APlatformTrigger::OnTriggerOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	APawn* OtherPawn = Cast<APawn>(OtherActor);
+	AGCBaseCharacter* OtherPawn = Cast<AGCBaseCharacter>(OtherActor);
 	if (!IsValid(OtherPawn))
 	{
 		return;
 	}
 
-	OverlappedPawns.AddUnique(OtherPawn);
-
-	if (!bIsActivated && OverlappedPawns.Num() > 0)
+	if (OtherPawn->IsLocallyControlled() || GetLocalRole() == ROLE_Authority)
 	{
-		SetIsActivated(true);
+		OverlappedPawns.AddUnique(OtherPawn);
+
+		if (!bIsActivated && OverlappedPawns.Num() > 0)
+		{
+			bIsActivated = true;
+			SetIsActivated(true);
+		}
 	}
 }
 
 void APlatformTrigger::OnTriggerOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	APawn* OtherPawn = Cast<APawn>(OtherActor);
+	AGCBaseCharacter* OtherPawn = Cast<AGCBaseCharacter>(OtherActor);
 	if (!IsValid(OtherPawn))
 	{
 		return;
 	}
 
-	OverlappedPawns.RemoveSingleSwap(OtherPawn);
-
-	if (bIsActivated && OverlappedPawns.Num() == 0)
+	if (OtherPawn->IsLocallyControlled() || GetLocalRole() == ROLE_Authority)
 	{
-		SetIsActivated(false);
+		OverlappedPawns.RemoveSingleSwap(OtherPawn);
+
+		if (bIsActivated && OverlappedPawns.Num() == 0)
+		{
+			bIsActivated = false;
+			SetIsActivated(false);
+		}
 	}
 }

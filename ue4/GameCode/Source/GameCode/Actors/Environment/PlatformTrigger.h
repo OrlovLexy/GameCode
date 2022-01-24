@@ -20,6 +20,8 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnTriggerActivated OnTriggerActivated;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -27,10 +29,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UBoxComponent* TriggerBox;
 
+	UPROPERTY(ReplicatedUsing=OnRep_IsActivated)
+	bool bIsActivated = false;
+
 private:
 	void SetIsActivated(bool bIsActivated_In);
 
-	bool bIsActivated = false;
+	UFUNCTION()
+	void OnRep_IsActivated(bool bIsActivated_Old);
 
 	TArray<APawn*> OverlappedPawns;
 
