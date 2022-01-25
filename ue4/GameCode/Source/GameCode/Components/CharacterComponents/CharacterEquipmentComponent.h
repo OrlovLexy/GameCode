@@ -21,6 +21,10 @@ class GAMECODE_API UCharacterEquipmentComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
+	UCharacterEquipmentComponent();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	EEquipableItemType GetCurrentEquipedItemType() const;
 
 	ARangeWeaponItem* GetCurrentRangeWeapon() const;
@@ -64,6 +68,9 @@ protected:
 	EEquipmentSlots AutoEquipItemInSlot = EEquipmentSlots::None;
 
 private:
+	UFUNCTION(Server, Reliable)
+	void Server_EquipItemInSlot(EEquipmentSlots Slot);
+
 	TAmunitionArray AmunitionArray;
 	TItemsArray ItemsArray;
 
@@ -89,7 +96,12 @@ private:
 	FDelegateHandle OnCurrentWeaponReloadedHandle;
 
 	EEquipmentSlots PreviousEquipedSlot;
+
+	UPROPERTY(ReplicatedUsing=OnRep_CurrentEquippedSlot)
 	EEquipmentSlots CurrentEquippedSlot;
+
+	UFUNCTION()
+	void OnRep_CurrentEquippedSlot(EEquipmentSlots CurrentEquippedSlot_Old);
 
 	AEquipableItem* CurrentEquippedItem;
 	ARangeWeaponItem* CurrentEquipedWeapon;
