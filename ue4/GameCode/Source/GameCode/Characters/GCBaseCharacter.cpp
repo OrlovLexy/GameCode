@@ -15,6 +15,7 @@
 #include "Actors/Equipment/Weapons/RangeWeaponItem.h"
 #include "Actors/Equipment/Weapons/MeleeWeaponItem.h"
 #include "AIController.h"
+#include "Net/UnrealNetwork.h"
 
 AGCBaseCharacter::AGCBaseCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGCBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -37,6 +38,12 @@ void AGCBaseCharacter::BeginPlay()
 	PronedEyeHeight = GCBaseCharacterMovementComponent->PronedHalfHeight * 0.80f;
 
 	CharacterAttributesComponent->OnDeathEvent.AddUObject(this, &AGCBaseCharacter::OnDeath);
+}
+
+void AGCBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AGCBaseCharacter, bIsMantling);
 }
 
 void AGCBaseCharacter::PossessedBy(AController* NewController)
@@ -235,6 +242,8 @@ void AGCBaseCharacter::Mantle(bool bForce /*= false*/)
 	FLedgeDescription LedgeDescription;
 	if (LedgeDetectorComponent->DetectLedge(LedgeDescription))
 	{
+		bIsMantling = true;
+
 		FMantlingMovementParameters MantlingParameters;
 		MantlingParameters.InitialLocation = GetActorLocation();
 		MantlingParameters.InitialRotation = GetActorRotation();
@@ -259,12 +268,22 @@ void AGCBaseCharacter::Mantle(bool bForce /*= false*/)
 		MantlingParameters.StartTime = FMath::GetMappedRangeValueClamped(SourceRange, TargetRange, MantlingHeight);
 
 		MantlingParameters.InitialAnimationLocation = MantlingParameters.TargetLocation - MantlingSettings.AnimationCorrectionZ * FVector::UpVector + MantlingSettings.AnimationCorrectionXY * LedgeDescription.LedgeNormal;
-
-		GetBaseCharacterMovementComponent()->StartMantle(MantlingParameters);
+		if (IsLocallyControlled() || GetLocalRole() == ROLE_Authority)
+		{
+			GetBaseCharacterMovementComponent()->StartMantle(MantlingParameters);
+		}
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		AnimInstance->Montage_Play(MantlingSettings.MantlingMontage, 1.0f, EMontagePlayReturnType::Duration, MantlingParameters.StartTime);
 		OnMantle(MantlingSettings, MantlingParameters.StartTime);
+	}
+}
+
+void AGCBaseCharacter::OnRep_IsMantling(bool bWasMantling)
+{
+	if (GetLocalRole() == ROLE_SimulatedProxy && !bWasMantling && bIsMantling)
+	{
+		Mantle(true);
 	}
 }
 
