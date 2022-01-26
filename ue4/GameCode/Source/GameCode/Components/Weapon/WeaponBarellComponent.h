@@ -29,6 +29,24 @@ struct FDecalInfo
 	float DecalFadeOutTime = 5.0f;
 };
 
+USTRUCT(BlueprintType)
+struct FShotInfo
+{
+	GENERATED_BODY()
+
+	FShotInfo() : Location_Mul_10(FVector_NetQuantize100::ZeroVector), Direction(FVector_NetQuantizeNormal::ZeroVector) {};
+	FShotInfo(FVector Location, FVector Direction) : Location_Mul_10(Location * 10.0f), Direction(Direction) {};
+
+	UPROPERTY()
+	FVector_NetQuantize100 Location_Mul_10;
+
+	UPROPERTY()
+	FVector_NetQuantizeNormal Direction;
+
+	FVector GetLocation() const { return Location_Mul_10 * 0.1f; }
+	FVector GetDirection() const { return Direction; }
+};
+
 class UNiagaraSystem;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GAMECODE_API UWeaponBarellComponent : public USceneComponent
@@ -36,7 +54,11 @@ class GAMECODE_API UWeaponBarellComponent : public USceneComponent
 	GENERATED_BODY()
 
 public:	
+	UWeaponBarellComponent();
+
 	void Shot(FVector ShotStart, FVector ShotDirection, float SpreadAngle);	
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barell attributes")
@@ -67,6 +89,17 @@ protected:
 	FDecalInfo DefaultDecalInfo;
 
 private:
+	void ShotInternal(const TArray<FShotInfo>& ShotsInfo);
+
+	UFUNCTION(Server, Reliable)
+	void Server_Shot(const TArray<FShotInfo>& ShotsInfo);
+
+	UPROPERTY(ReplicatedUsing = OnRep_LastShotsInfo)
+	TArray<FShotInfo> LastShotsInfo;
+
+	UFUNCTION()
+	void OnRep_LastShotsInfo();
+
 	APawn* GetOwningPawn() const;
 	AController* GetController() const;
 
