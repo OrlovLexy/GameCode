@@ -5,12 +5,20 @@
 #include "DrawDebugHelpers.h"
 #include "Components/CapsuleComponent.h"
 #include "../../GameCodeTypes.h"
+#include "Net/UnrealNetwork.h"
 
 UCharacterAttributeComponent::UCharacterAttributeComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicatedByDefault(true);
 }
 
+
+void UCharacterAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UCharacterAttributeComponent, Health);
+}
 
 void UCharacterAttributeComponent::BeginPlay()
 {
@@ -22,7 +30,26 @@ void UCharacterAttributeComponent::BeginPlay()
 
 	Health = MaxHealth;
 
-	CachedBaseCharacterOwner->OnTakeAnyDamage.AddDynamic(this, &UCharacterAttributeComponent::OnTakeAnyDamage);
+	if (GetOwner()->HasAuthority())
+	{
+		CachedBaseCharacterOwner->OnTakeAnyDamage.AddDynamic(this, &UCharacterAttributeComponent::OnTakeAnyDamage);
+	}
+}
+
+void UCharacterAttributeComponent::OnRep_Health()
+{
+	OnHealthChanged();
+}
+
+void UCharacterAttributeComponent::OnHealthChanged()
+{
+	if (Health <= 0.0f)
+	{
+		if (OnDeathEvent.IsBound())
+		{
+			OnDeathEvent.Broadcast();
+		}
+	}
 }
 
 #if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
@@ -48,15 +75,7 @@ void UCharacterAttributeComponent::OnTakeAnyDamage(AActor* DamagedActor, float D
 	
 	UE_LOG(LogDamage, Warning, TEXT("UCharacterAttributeComponent::OnTakeAnyDamage %s recieved %.2f amount of damage from %s"), *CachedBaseCharacterOwner->GetName(), Damage, *DamageCauser->GetName());
 	Health = FMath::Clamp (Health - Damage, 0.0f, MaxHealth);
-
-	if (Health <= 0.0f)
-	{
-		UE_LOG(LogDamage, Warning, TEXT("UCharacterAttributeComponent::OnTakeAnyDamage character %s is killed by an actor %s"), *CachedBaseCharacterOwner->GetName(), *DamageCauser->GetName());
-		if (OnDeathEvent.IsBound())
-		{
-			OnDeathEvent.Broadcast();
-		}
-	}
+	OnHealthChanged();
 }
 
 void UCharacterAttributeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

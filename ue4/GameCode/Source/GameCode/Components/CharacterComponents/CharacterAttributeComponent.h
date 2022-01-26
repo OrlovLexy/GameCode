@@ -14,6 +14,8 @@ class GAMECODE_API UCharacterAttributeComponent : public UActorComponent
 public:	
 	UCharacterAttributeComponent();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	FOnDeathEventSignature OnDeathEvent;
@@ -29,7 +31,13 @@ protected:
 	float MaxHealth = 100.0f;
 
 private:
+	UPROPERTY(ReplicatedUsing = OnRep_Health)
 	float Health = 0.0f;
+
+	UFUNCTION()
+	void OnRep_Health();
+
+	void OnHealthChanged();
 
 #if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
 	void DebugDrawAttributes();
