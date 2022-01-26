@@ -47,6 +47,7 @@ struct FShotInfo
 	FVector GetDirection() const { return Direction; }
 };
 
+class AGCProjectile;
 class UNiagaraSystem;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GAMECODE_API UWeaponBarellComponent : public USceneComponent
@@ -71,7 +72,10 @@ protected:
 	EHitRegistrationType HitRegistration = EHitRegistrationType::HitScan;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barell Attributes | Hit registration", meta = (EditCondition = "HitRegistration == EHitRegistrationType::Projectile"))
-	TSubclassOf<class AGCProjectile> ProjectileClass;
+	TSubclassOf<AGCProjectile> ProjectileClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barell Attributes | Hit registration", meta = (UIMin = 1, ClampMin = 1, EditCondition = "HitRegistration == EHitRegistrationType::Projectile"))
+	int32 ProjectilePoolSize = 10;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barell attributes | Damage", meta = (ClampMin = 0.0f, UIMin = 0.0f))
 	float DamageAmount = 20.0f;
@@ -88,6 +92,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barell attributes | Decals")
 	FDecalInfo DefaultDecalInfo;
 
+	virtual void BeginPlay() override;
+
 private:
 	void ShotInternal(const TArray<FShotInfo>& ShotsInfo);
 
@@ -100,13 +106,24 @@ private:
 	UFUNCTION()
 	void OnRep_LastShotsInfo();
 
+	UPROPERTY(Replicated)
+	TArray<AGCProjectile*> ProjectilePool;
+
+	UPROPERTY(Replicated)
+	int32 CurrentProjectileIndex;
+
 	APawn* GetOwningPawn() const;
 	AController* GetController() const;
+
+	UFUNCTION()
+	void ProcessProjectileHit(AGCProjectile* Projectile, const FHitResult& HitResult, const FVector& Direction);
 
 	UFUNCTION()
 	void ProcessHit(const FHitResult& HitResult, const FVector& Direction);
 
 	FVector GetBulletSpreadOffset(float Angle, FRotator ShotRotation) const;
+
+	FVector ProjectilePoolLocation = FVector(0.0f, 0.0f, -100.0f);
 
 	bool HitScan(FVector ShotStart, OUT FVector& ShotEnd, FVector ShotDirection);
 	void LaunchProjectile(const FVector& LaunchStart, const FVector& LaunchDirection);

@@ -25,7 +25,7 @@ void UWeaponBarellComponent::Shot(FVector ShotStart, FVector ShotDirection, floa
 		ShotsInfo.Emplace(ShotStart, ShotDirection);
 	}
 
-	if (GetOwner()->GetLocalRole() == ROLE_Authority)
+	if (GetOwner()->GetLocalRole() == ROLE_AutonomousProxy)
 	{
 		Server_Shot(ShotsInfo);
 	}
@@ -39,6 +39,8 @@ void UWeaponBarellComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	RepParams.Condition = COND_SimulatedOnly;
 	RepParams.RepNotifyCondition = REPNOTIFY_Always;
 	DOREPLIFETIME_WITH_PARAMS(UWeaponBarellComponent, LastShotsInfo, RepParams);
+	DOREPLIFETIME(UWeaponBarellComponent, ProjectilePool);
+	DOREPLIFETIME(UWeaponBarellComponent, CurrentProjectileIndex);
 }
 
 bool UWeaponBarellComponent::HitScan(FVector ShotStart, OUT FVector& ShotEnd, FVector ShotDirection)
@@ -55,12 +57,41 @@ bool UWeaponBarellComponent::HitScan(FVector ShotStart, OUT FVector& ShotEnd, FV
 
 void UWeaponBarellComponent::LaunchProjectile(const FVector& LaunchStart, const FVector& LaunchDirection)
 {
-	AGCProjectile* Projectile = GetWorld()->SpawnActor<AGCProjectile>(ProjectileClass, LaunchStart, LaunchDirection.ToOrientationRotator());
-	if (IsValid(Projectile))
+	AGCProjectile* Projectile = ProjectilePool[CurrentProjectileIndex];
+	Projectile->SetActorLocation(LaunchStart);
+	Projectile->SetActorRotation(LaunchDirection.ToOrientationRotator());
+	Projectile->SetProjectileActive(true);
+	Projectile->OnProjectileHit.AddDynamic(this, &UWeaponBarellComponent::ProcessProjectileHit);
+	Projectile->LaunchProjectile(LaunchDirection.GetSafeNormal());
+	++CurrentProjectileIndex;
+	if (CurrentProjectileIndex == ProjectilePool.Num())
 	{
+		CurrentProjectileIndex = 0;
+	}
+}
+
+void UWeaponBarellComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GetOwnerRole() < ROLE_Authority)
+	{
+		return;
+	}
+
+	if (!IsValid(ProjectileClass))
+	{
+		return;
+	}
+
+	ProjectilePool.Reserve(ProjectilePoolSize);
+
+	for (int32 i = 0; i < ProjectilePoolSize; ++i)
+	{
+		AGCProjectile* Projectile = GetWorld()->SpawnActor<AGCProjectile>(ProjectileClass, ProjectilePoolLocation, FRotator::ZeroRotator);
 		Projectile->SetOwner(GetOwningPawn());
-		Projectile->OnProjectileHit.AddDynamic(this, &UWeaponBarellComponent::ProcessHit);
-		Projectile->LaunchProjectile(LaunchDirection.GetSafeNormal());
+		Projectile->SetProjectileActive(false);
+		ProjectilePool.Add(Projectile);
 	}
 }
 
@@ -73,7 +104,6 @@ void UWeaponBarellComponent::ShotInternal(const TArray<FShotInfo>& ShotsInfo)
 
 	FVector MuzzleLocation = GetComponentLocation();
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), MuzzleFlashFX, MuzzleLocation, GetComponentRotation());
-
 	for (const FShotInfo& ShotInfo : ShotsInfo)
 	{
 		FVector ShotStart = ShotInfo.GetLocation();
@@ -105,7 +135,10 @@ void UWeaponBarellComponent::ShotInternal(const TArray<FShotInfo>& ShotsInfo)
 		}
 
 		UNiagaraComponent* TraceFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TraceFX, MuzzleLocation, GetComponentRotation());
-		TraceFXComponent->SetVectorParameter(FXParamTraceEnd, ShotEnd);
+		if (IsValid(TraceFXComponent))
+		{
+			TraceFXComponent->SetVectorParameter(FXParamTraceEnd, ShotEnd);
+		}
 
 		if (bIsDebugEnabled)
 		{
@@ -127,7 +160,7 @@ void UWeaponBarellComponent::OnRep_LastShotsInfo()
 APawn* UWeaponBarellComponent::GetOwningPawn() const
 {
 	APawn* PawnOwner = Cast<APawn>(GetOwner());
-	if (!IsValid(PawnOwner))
+	if (IsValid(PawnOwner))
 	{
 		PawnOwner = Cast<APawn>(GetOwner()->GetOwner());
 	}
@@ -140,10 +173,18 @@ AController* UWeaponBarellComponent::GetController() const
 	return IsValid(PawnOwner) ? PawnOwner->GetController() : nullptr;
 }
 
+void UWeaponBarellComponent::ProcessProjectileHit(AGCProjectile* Projectile, const FHitResult& HitResult, const FVector& Direction)
+{
+	Projectile->SetProjectileActive(false);
+	Projectile->SetActorLocation(ProjectilePoolLocation);
+	Projectile->SetActorRotation(FRotator::ZeroRotator);
+	Projectile->OnProjectileHit.RemoveAll(this);
+	ProcessHit(HitResult, Direction);
+}
+
 void UWeaponBarellComponent::ProcessHit(const FHitResult& HitResult, const FVector& Direction)
 {
 	AActor* HitActor = HitResult.GetActor();
-
 	if (GetOwner()->HasAuthority() && IsValid(HitActor))
 	{
 		FPointDamageEvent DamageEvent;
