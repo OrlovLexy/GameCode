@@ -27,5 +27,6 @@ void AAITurretController::ActorsPerceptionUpdated(const TArray<AActor*>& Updated
 	}
 
 	AActor* ClosestActor = GetClosestSensedActors(UAISense_Sight::StaticClass());
-	CachedTurret->SetCurrentTarget(ClosestActor);
+	CachedTurret->CurrentTarget = ClosestActor;
+	CachedTurret->OnCurrentTargetSet();
 }

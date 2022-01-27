@@ -1,10 +1,12 @@
 #include "Turret.h"
 #include "Components/Weapon/WeaponBarellComponent.h"
 #include "AIController.h"
+#include "Net/UnrealNetwork.h"
 
 ATurret::ATurret()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	SetReplicates(true);
 
 	USceneComponent* TurretRoot = CreateDefaultSubobject<USceneComponent>(TEXT("TurretRoot"));
 	SetRootComponent(TurretRoot);
@@ -19,6 +21,12 @@ ATurret::ATurret()
 	WeaponBarell->SetupAttachment(TurretBarellComponent);
 }
 
+
+void ATurret::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ATurret, CurrentTarget);
+}
 
 void ATurret::PossessedBy(AController* NewController)
 {
@@ -49,9 +57,8 @@ void ATurret::Tick(float DeltaTime)
 	}
 }
 
-void ATurret::SetCurrentTarget(AActor* NewTarget)
+void ATurret::OnCurrentTargetSet()
 {
-	CurrentTarget = NewTarget;
 	ETurretState NewState = IsValid(CurrentTarget) ? ETurretState::Firing : ETurretState::Searching;
 	SetCurrentTurretState(NewState);
 }
@@ -114,6 +121,11 @@ void ATurret::SetCurrentTurretState(ETurretState NewState)
 			break;
 		}
 	}
+}
+
+void ATurret::OnRep_CurrentTarget()
+{
+	OnCurrentTargetSet();
 }
 
 float ATurret::GetFireInterval() const
