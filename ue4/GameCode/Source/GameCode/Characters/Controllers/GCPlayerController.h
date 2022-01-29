@@ -19,6 +19,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widgets")
 	TSubclassOf<class UPlayerHUDWidget> PlayerHUDWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widgets")
+	TSubclassOf<class UUserWidget> MainMenuWidgetClass;
+
+
 	virtual void SetupInputComponent() override;
 
 private:
@@ -63,6 +67,8 @@ private:
 	bool bIgnoreCameraPitch = false;
 
 	void CreateAndInitializeWidgets();
+	void ToggleMainMenu();
 
 	UPlayerHUDWidget* PlayerHUDWidget = nullptr;
+	UUserWidget* MainMenuWidget = nullptr;
 };

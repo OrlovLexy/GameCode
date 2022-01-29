@@ -38,6 +38,12 @@ void AGCPlayerController::CreateAndInitializeWidgets()
 			PlayerHUDWidget->AddToViewport();
 		}
 	}
+
+	if (!IsValid(MainMenuWidget))
+	{
+		MainMenuWidget = CreateWidget<UUserWidget>(GetWorld(), MainMenuWidgetClass);
+	}
+
 	if (IsValid(PlayerHUDWidget) && CachedBaseCharacter.IsValid())
 	{
 		UReticleWidget* ReticleWidget = PlayerHUDWidget->GetReticleWidget();
@@ -54,6 +60,33 @@ void AGCPlayerController::CreateAndInitializeWidgets()
 			UCharacterEquipmentComponent* CharacterEquipment = CachedBaseCharacter->GetCharacterEquipmentComponent_Mutable();
 			CharacterEquipment->OnCurrentWeaponAmmoChangedEvent.AddUFunction(AmmoWidget, FName("UpdateAmmoCount"));
 		}
+	}
+	SetInputMode(FInputModeGameOnly{});
+	bShowMouseCursor = false;
+}
+
+void AGCPlayerController::ToggleMainMenu()
+{
+	if (!IsValid(MainMenuWidget) || !IsValid(PlayerHUDWidget))
+	{
+		return;
+	}
+
+	if (MainMenuWidget->IsVisible())
+	{
+		MainMenuWidget->RemoveFromParent();
+		PlayerHUDWidget->AddToViewport();
+		SetInputMode(FInputModeGameOnly{});
+		SetPause(false);
+		bShowMouseCursor = false;
+	}
+	else
+	{
+		MainMenuWidget->AddToViewport();
+		PlayerHUDWidget->RemoveFromParent();
+		SetInputMode(FInputModeGameAndUI{});
+		SetPause(true);
+		bShowMouseCursor = true;
 	}
 }
 
@@ -87,7 +120,8 @@ void AGCPlayerController::SetupInputComponent()
 	InputComponent->BindAction("EquipPrimaryItem", EInputEvent::IE_Pressed, this, &AGCPlayerController::EquipPrimaryItem);
 	InputComponent->BindAction("PrimaryMeleeAttack", EInputEvent::IE_Pressed, this, &AGCPlayerController::PrimaryMeleeAttack);
 	InputComponent->BindAction("SecondaryMeleeAttack", EInputEvent::IE_Pressed, this, &AGCPlayerController::SecondaryMeleeAttack);
-	
+	FInputActionBinding& ToggleMenuBinding = InputComponent->BindAction("ToggleMainMenu", EInputEvent::IE_Pressed, this, &AGCPlayerController::ToggleMainMenu);
+	ToggleMenuBinding.bExecuteWhenPaused = true;
 }
 
 void AGCPlayerController::MoveForward(float Value)
