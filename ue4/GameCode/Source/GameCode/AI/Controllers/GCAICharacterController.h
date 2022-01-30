@@ -21,7 +21,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	float TargetReachRadius = 100.0f;
 
-	virtual void BeginPlay() override;
+	void SetupPatrolling();
 
 private:
 	void TryMoveToNextTarget();

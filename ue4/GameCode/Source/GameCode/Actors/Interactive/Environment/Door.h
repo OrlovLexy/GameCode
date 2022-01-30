@@ -20,6 +20,10 @@ public:
 
 	virtual FName GetActionEventName() const override;
 
+	virtual bool HasOnInteractionCallback() const override;
+	virtual FDelegateHandle AddOnInteractionUFunction(UObject * Object, const FName & FunctionName) override;
+	virtual void RemoveOnInteractionDelegate(FDelegateHandle DelegateHandle) override;
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interactive | Door")
 	UStaticMeshComponent* DoorMesh;
@@ -37,6 +41,8 @@ protected:
 	UCurveFloat* DoorAnimationCurve;
 
 	virtual void BeginPlay() override;
+
+	IInteractable::FOnInteraction OnInteractionEvent;
 
 private:
 	void InteractWithDoor();
