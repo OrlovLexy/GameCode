@@ -68,6 +68,9 @@ private:
 
 	void CreateAndInitializeWidgets();
 	void ToggleMainMenu();
+	void OnInteractableObjectFound(FName ActionName);
+
+	void Interact();
 
 	UPlayerHUDWidget* PlayerHUDWidget = nullptr;
 	UUserWidget* MainMenuWidget = nullptr;

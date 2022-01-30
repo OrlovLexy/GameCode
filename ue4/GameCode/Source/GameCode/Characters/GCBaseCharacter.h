@@ -4,15 +4,18 @@
 #include "GameFramework/Character.h"
 #include "GameCodeTypes.h"
 #include "GenericTeamAgentInterface.h"
+#include "UObject/ScriptInterface.h"
 #include "GCBaseCharacter.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAimingStateChanged, bool)
+DECLARE_DELEGATE_OneParam(FOnInteractableObjectFound, FName);
 
 class AInteractiveActor;
 class UGCBaseCharacterMovementComponent;
 class UAnimMontage;
 class UCharacterEquipmentComponent;
 class UCharacterAttributeComponent;
+class IInteractable;
 
 USTRUCT(BlueprintType)
 struct FMantlingSettings
@@ -57,6 +60,8 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void EndPlay(const EEndPlayReason::Type Reason) override;
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void PossessedBy(AController* NewController) override;
@@ -74,6 +79,9 @@ public:
 	virtual void StopSprint();
 
 	virtual void Tick(float DeltaTime) override;
+
+	void UpdateIKSettings(float DeltaTime);
+	void UpdateStamina(float DeltaTime);
 
 	void StartFire();
 	void StopFire();
@@ -176,6 +184,10 @@ public:
 	void PrimaryMeleeAttack();
 	void SecondaryMeleeAttack();
 
+	void Interact();
+
+	FOnInteractableObjectFound OnInteractableObjectFound;
+
 /** IGenericTeamAgentInterface */
 	virtual FGenericTeamId GetGenericTeamId() const override;
 /** ~IGenericTeamAgentInterface */
@@ -255,6 +267,14 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character | Team")
 	ETeams Team = ETeams::Enemy;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character | Team")
+	float LineOfSightDistance = 500.0f;
+
+	void TraceLineOfSight();
+
+	UPROPERTY()
+	TScriptInterface<IInteractable> LineOfSightObject;
 	
 private:
 	void TryChangeSprintState(float DeltaSeconds);

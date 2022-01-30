@@ -16,6 +16,7 @@
 #include "Actors/Equipment/Weapons/MeleeWeaponItem.h"
 #include "AIController.h"
 #include "Net/UnrealNetwork.h"
+#include "Actors/Interactive/Interface/Interactable.h"
 
 AGCBaseCharacter::AGCBaseCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGCBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -38,6 +39,15 @@ void AGCBaseCharacter::BeginPlay()
 	PronedEyeHeight = GCBaseCharacterMovementComponent->PronedHalfHeight * 0.80f;
 
 	CharacterAttributesComponent->OnDeathEvent.AddUObject(this, &AGCBaseCharacter::OnDeath);
+}
+
+void AGCBaseCharacter::EndPlay(const EEndPlayReason::Type Reason)
+{
+	if (OnInteractableObjectFound.IsBound())
+	{
+		OnInteractableObjectFound.Unbind();
+	}
+	Super::EndPlay(Reason);
 }
 
 void AGCBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -92,7 +102,7 @@ void AGCBaseCharacter::ChangeProneState()
 void AGCBaseCharacter::StartSprint()
 {
 	bIsSprintRequsted = true;
-	if(bIsCrouched)
+	if (bIsCrouched)
 	{
 		UnCrouch();
 	}
@@ -107,17 +117,29 @@ void AGCBaseCharacter::StopSprint()
 	bIsSprintRequsted = false;
 }
 
-void AGCBaseCharacter::Tick(float DeltaSeconds)
+void AGCBaseCharacter::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaSeconds);
-	TryChangeSprintState(DeltaSeconds);
-	IKRightFootOffset = FMath::FInterpTo(IKRightFootOffset, GetIKOffsetForASocket(RightFootSocketName), DeltaSeconds, IKInterpSpeed);
-	IKLeftFootOffset = FMath::FInterpTo(IKLeftFootOffset, GetIKOffsetForASocket(LeftFootSocketName), DeltaSeconds, IKInterpSpeed);
-	IKPelvisOffset = FMath::FInterpTo(IKPelvisOffset, CalculateIKPelvisOffset(), DeltaSeconds, IKInterpSpeed);
+	Super::Tick(DeltaTime);
 
+	TryChangeSprintState(DeltaTime);
+	UpdateIKSettings(DeltaTime);
+	UpdateStamina(DeltaTime);
+
+	TraceLineOfSight();
+}
+
+void AGCBaseCharacter::UpdateIKSettings(float DeltaTime)
+{
+	IKRightFootOffset = FMath::FInterpTo(IKRightFootOffset, GetIKOffsetForASocket(RightFootSocketName), DeltaTime, IKInterpSpeed);
+	IKLeftFootOffset = FMath::FInterpTo(IKLeftFootOffset, GetIKOffsetForASocket(LeftFootSocketName), DeltaTime, IKInterpSpeed);
+	IKPelvisOffset = FMath::FInterpTo(IKPelvisOffset, CalculateIKPelvisOffset(), DeltaTime, IKInterpSpeed);
+}
+
+void AGCBaseCharacter::UpdateStamina(float DeltaTime)
+{
 	if (!GCBaseCharacterMovementComponent->IsSprinting())
 	{
-		CurrentStamina += StaminaRestoreVelocity * DeltaSeconds;
+		CurrentStamina += StaminaRestoreVelocity * DeltaTime;
 		CurrentStamina = FMath::Clamp(CurrentStamina, 0.0f, MaxStamina);
 	}
 
@@ -415,13 +437,48 @@ void AGCBaseCharacter::OnStopAimingInternal()
 	}
 }
 
+void AGCBaseCharacter::TraceLineOfSight()
+{
+	if (!IsPlayerControlled())
+	{
+		return;
+	}
+
+	FVector ViewLocation;
+	FRotator ViewRotation;
+
+	APlayerController* PlayerController = GetController<APlayerController>();
+	PlayerController->GetPlayerViewPoint(ViewLocation, ViewRotation);
+
+	FVector ViewDirection = ViewRotation.Vector();
+	FVector TraceEnd = ViewLocation + ViewDirection * LineOfSightDistance;
+
+	FHitResult HitResult;
+	GetWorld()->LineTraceSingleByChannel(HitResult, ViewLocation, TraceEnd, ECC_Visibility);
+	if (LineOfSightObject.GetObject() != HitResult.Actor)
+	{
+		LineOfSightObject = HitResult.Actor.Get();
+		
+		FName ActionName;
+		if (LineOfSightObject.GetInterface())
+		{
+			ActionName = LineOfSightObject->GetActionEventName();
+		}
+		else
+		{
+			ActionName = NAME_None;
+		}
+		OnInteractableObjectFound.ExecuteIfBound(ActionName);
+	}
+}
+
 void AGCBaseCharacter::TryChangeSprintState(float DeltaSeconds)
 {
 	if (bIsSprintRequsted && !GCBaseCharacterMovementComponent->IsSprinting() && CanSprint())
 	{
 		GCBaseCharacterMovementComponent->StartSprint();
 		OnSprintStart();
-		
+
 	}
 	if (GCBaseCharacterMovementComponent->IsSprinting())
 	{
@@ -440,7 +497,7 @@ float AGCBaseCharacter::GetIKOffsetForASocket(const FName& SocketName)
 {
 	UDebugSubsystem* DebugSubsystem = UGameplayStatics::GetGameInstance(GetWorld())->GetSubsystem<UDebugSubsystem>();
 	bool bIsDebugEnabled = DebugSubsystem->IsCategoryEnabled(DebugCategoryIKDetection);
-	
+
 	float Result = 0.0f;
 	float CapsuleHalfHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 
@@ -559,6 +616,14 @@ void AGCBaseCharacter::SecondaryMeleeAttack()
 	}
 }
 
+
+void AGCBaseCharacter::Interact()
+{
+	if (LineOfSightObject.GetInterface())
+	{
+		LineOfSightObject->Interact(this);
+	}
+}
 
 FGenericTeamId AGCBaseCharacter::GetGenericTeamId() const
 {

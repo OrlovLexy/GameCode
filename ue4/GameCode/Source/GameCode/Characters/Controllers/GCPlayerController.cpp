@@ -1,19 +1,22 @@
 #include "GCPlayerController.h"
 #include "../GCBaseCharacter.h"
 #include "Blueprint/UserWidget.h"
-#include "UI/Widget/ReticleWidget.h"
-#include "UI/Widget/PlayerHUDWidget.h"
-#include "UI/Widget/AmmoWidget.h"
+#include "UI/Widget/HUD/ReticleWidget.h"
+#include "UI/Widget/HUD/PlayerHUDWidget.h"
+#include "UI/Widget/HUD/AmmoWidget.h"
 #include "Components/CharacterComponents/CharacterEquipmentComponent.h"
+#include "GameCodeTypes.h"
+#include "GameFramework/PlayerInput.h"
 
 
 void AGCPlayerController::SetPawn(APawn* InPawn)
 {
 	Super::SetPawn(InPawn);
 	CachedBaseCharacter = Cast<AGCBaseCharacter>(InPawn);
-	if (IsLocalController())
+	if (CachedBaseCharacter.IsValid() && IsLocalController())
 	{
 		CreateAndInitializeWidgets();
+		CachedBaseCharacter->OnInteractableObjectFound.BindUObject(this, &AGCPlayerController::OnInteractableObjectFound);
 	}
 }
 
@@ -90,6 +93,23 @@ void AGCPlayerController::ToggleMainMenu()
 	}
 }
 
+void AGCPlayerController::OnInteractableObjectFound(FName ActionName)
+{
+	if (!IsValid(PlayerHUDWidget))
+	{
+		return;
+	}
+
+	TArray<FInputActionKeyMapping> ActionKeys = PlayerInput->GetKeysForAction(ActionName);
+	const bool HasAnyKeys = ActionKeys.Num() != 0;
+	if (HasAnyKeys)
+	{
+		FName ActionKey = ActionKeys[0].Key.GetFName();
+		PlayerHUDWidget->SetHighlightInteractableActionText(ActionKey);
+	}
+	PlayerHUDWidget->SetHighlightInteractableVisibility(HasAnyKeys);
+}
+
 void AGCPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -120,6 +140,7 @@ void AGCPlayerController::SetupInputComponent()
 	InputComponent->BindAction("EquipPrimaryItem", EInputEvent::IE_Pressed, this, &AGCPlayerController::EquipPrimaryItem);
 	InputComponent->BindAction("PrimaryMeleeAttack", EInputEvent::IE_Pressed, this, &AGCPlayerController::PrimaryMeleeAttack);
 	InputComponent->BindAction("SecondaryMeleeAttack", EInputEvent::IE_Pressed, this, &AGCPlayerController::SecondaryMeleeAttack);
+	InputComponent->BindAction(ActionInteract, EInputEvent::IE_Pressed, this, &AGCPlayerController::Interact);
 	FInputActionBinding& ToggleMenuBinding = InputComponent->BindAction("ToggleMainMenu", EInputEvent::IE_Pressed, this, &AGCPlayerController::ToggleMainMenu);
 	ToggleMenuBinding.bExecuteWhenPaused = true;
 }
@@ -337,5 +358,13 @@ void AGCPlayerController::PlayerStartFire()
 	if (CachedBaseCharacter.IsValid())
 	{
 		CachedBaseCharacter->StartFire();
+	}
+}
+
+void AGCPlayerController::Interact()
+{
+	if (CachedBaseCharacter.IsValid())
+	{
+		CachedBaseCharacter->Interact();
 	}
 }
