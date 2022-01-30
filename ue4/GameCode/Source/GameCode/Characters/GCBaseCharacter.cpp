@@ -17,6 +17,8 @@
 #include "AIController.h"
 #include "Net/UnrealNetwork.h"
 #include "Actors/Interactive/Interface/Interactable.h"
+#include "Components/WidgetComponent.h"
+#include "UI/Widget/World/GCAttributeProgressBar.h"
 
 AGCBaseCharacter::AGCBaseCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGCBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -29,6 +31,9 @@ AGCBaseCharacter::AGCBaseCharacter(const FObjectInitializer& ObjectInitializer)
 
 	CharacterAttributesComponent = CreateDefaultSubobject<UCharacterAttributeComponent>(TEXT("CharacterAttributes"));
 	CharacterEquipmentComponent = CreateDefaultSubobject<UCharacterEquipmentComponent>(TEXT("CharacterEquipment"));
+
+	HealthBarProgressComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarProgressComponent"));
+	HealthBarProgressComponent->SetupAttachment(GetCapsuleComponent());
 }
 
 void AGCBaseCharacter::BeginPlay()
@@ -39,6 +44,7 @@ void AGCBaseCharacter::BeginPlay()
 	PronedEyeHeight = GCBaseCharacterMovementComponent->PronedHalfHeight * 0.80f;
 
 	CharacterAttributesComponent->OnDeathEvent.AddUObject(this, &AGCBaseCharacter::OnDeath);
+	InitializeHealthProgress();
 }
 
 void AGCBaseCharacter::EndPlay(const EEndPlayReason::Type Reason)
@@ -623,6 +629,25 @@ void AGCBaseCharacter::Interact()
 	{
 		LineOfSightObject->Interact(this);
 	}
+}
+
+void AGCBaseCharacter::InitializeHealthProgress()
+{
+	UGCAttributeProgressBar* Widget = Cast<UGCAttributeProgressBar>(HealthBarProgressComponent->GetUserWidgetObject());
+	if (!IsValid(Widget))
+	{
+		HealthBarProgressComponent->SetVisibility(false);
+		return;
+	}
+
+	if (IsPlayerControlled() && IsLocallyControlled())
+	{
+		HealthBarProgressComponent->SetVisibility(false);
+	}
+
+	CharacterAttributesComponent->OnHealthChangedEvent.AddUObject(Widget, &UGCAttributeProgressBar::SetProgressPercentage);
+	CharacterAttributesComponent->OnDeathEvent.AddLambda([=]() { HealthBarProgressComponent->SetVisibility(false); });
+	Widget->SetProgressPercentage(CharacterAttributesComponent->GetHealthPercent());
 }
 
 FGenericTeamId AGCBaseCharacter::GetGenericTeamId() const

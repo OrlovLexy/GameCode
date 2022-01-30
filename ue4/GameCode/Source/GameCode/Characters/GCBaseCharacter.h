@@ -186,6 +186,11 @@ public:
 
 	void Interact();
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Character | Components")
+	class UWidgetComponent* HealthBarProgressComponent;
+
+	void InitializeHealthProgress();
+
 	FOnInteractableObjectFound OnInteractableObjectFound;
 
 /** IGenericTeamAgentInterface */
