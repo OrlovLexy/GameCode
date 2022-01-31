@@ -49,8 +49,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Reticle")
 	EReticleType ReticleType = EReticleType::None;
 
-	AGCBaseCharacter* GetCharacterOwner() const;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory item")
+	FName DataTableID = NAME_None;
 
+	AGCBaseCharacter* GetCharacterOwner() const;
 
 private:
 	TWeakObjectPtr<AGCBaseCharacter> CachedCharacterOwner;

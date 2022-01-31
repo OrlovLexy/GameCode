@@ -52,6 +52,8 @@ public:
 	void EquipNextItem();
 	void EquipPreviousItem();
 
+	void AddEquipmentItem(const TSubclassOf<AEquipableItem> EquipableItemClass);
+
 protected:
 	virtual void BeginPlay();
 

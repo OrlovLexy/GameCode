@@ -186,6 +186,8 @@ public:
 
 	void Interact();
 
+	void AddEquipmentItem(const TSubclassOf<class AEquipableItem> EquipableItemClass);
+
 	UPROPERTY(VisibleDefaultsOnly, Category = "Character | Components")
 	class UWidgetComponent* HealthBarProgressComponent;
 
