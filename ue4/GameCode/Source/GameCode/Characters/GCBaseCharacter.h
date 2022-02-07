@@ -16,6 +16,8 @@ class UAnimMontage;
 class UCharacterEquipmentComponent;
 class UCharacterAttributeComponent;
 class IInteractable;
+class UInventoryItem;
+class UCharacterInventoryComponent;
 
 USTRUCT(BlueprintType)
 struct FMantlingSettings
@@ -82,6 +84,9 @@ public:
 
 	void UpdateIKSettings(float DeltaTime);
 	void UpdateStamina(float DeltaTime);
+
+	void RestoreFullStamina();
+	void AddHealth(float Health);
 
 	void StartFire();
 	void StopFire();
@@ -188,6 +193,9 @@ public:
 
 	void AddEquipmentItem(const TSubclassOf<class AEquipableItem> EquipableItemClass);
 
+	bool PickupItem(TWeakObjectPtr<UInventoryItem> ItemToPickup);
+	void UseInventory(APlayerController* PlayerController);
+
 	UPROPERTY(VisibleDefaultsOnly, Category = "Character | Components")
 	class UWidgetComponent* HealthBarProgressComponent;
 
@@ -282,6 +290,9 @@ protected:
 
 	UPROPERTY()
 	TScriptInterface<IInteractable> LineOfSightObject;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character | Components")
+	UCharacterInventoryComponent* CharacterInventoryComponent;
 	
 private:
 	void TryChangeSprintState(float DeltaSeconds);

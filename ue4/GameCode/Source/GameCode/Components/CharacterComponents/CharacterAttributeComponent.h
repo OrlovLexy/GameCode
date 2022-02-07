@@ -26,6 +26,8 @@ public:
 
 	float GetHealthPercent() const;
 
+	void AddHealth(float HealthToAdd);
+
 protected:
 	virtual void BeginPlay() override;
 

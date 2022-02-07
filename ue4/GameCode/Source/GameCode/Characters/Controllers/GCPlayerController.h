@@ -72,6 +72,8 @@ private:
 
 	void Interact();
 
+	void UseInventory();
+
 	UPlayerHUDWidget* PlayerHUDWidget = nullptr;
 	UUserWidget* MainMenuWidget = nullptr;
 };

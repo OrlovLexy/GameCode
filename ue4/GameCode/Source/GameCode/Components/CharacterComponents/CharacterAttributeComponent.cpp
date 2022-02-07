@@ -95,3 +95,9 @@ float UCharacterAttributeComponent::GetHealthPercent() const
 {
 	return Health / MaxHealth;
 }
+
+void UCharacterAttributeComponent::AddHealth(float HealthToAdd)
+{
+	Health = FMath::Clamp(Health + HealthToAdd, 0.0f, MaxHealth);
+	OnHealthChanged();
+}

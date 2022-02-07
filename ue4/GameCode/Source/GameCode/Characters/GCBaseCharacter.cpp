@@ -19,6 +19,9 @@
 #include "Actors/Interactive/Interface/Interactable.h"
 #include "Components/WidgetComponent.h"
 #include "UI/Widget/World/GCAttributeProgressBar.h"
+#include "Characters/GCBaseCharacter.h"
+#include "Inventory/Items/InventoryItem.h"
+#include "Components/CharacterComponents/CharacterInventoryComponent.h"
 
 AGCBaseCharacter::AGCBaseCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGCBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -31,6 +34,7 @@ AGCBaseCharacter::AGCBaseCharacter(const FObjectInitializer& ObjectInitializer)
 
 	CharacterAttributesComponent = CreateDefaultSubobject<UCharacterAttributeComponent>(TEXT("CharacterAttributes"));
 	CharacterEquipmentComponent = CreateDefaultSubobject<UCharacterEquipmentComponent>(TEXT("CharacterEquipment"));
+	CharacterInventoryComponent = CreateDefaultSubobject<UCharacterInventoryComponent>(TEXT("InventoryComponent"));
 
 	HealthBarProgressComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarProgressComponent"));
 	HealthBarProgressComponent->SetupAttachment(GetCapsuleComponent());
@@ -163,6 +167,16 @@ void AGCBaseCharacter::UpdateStamina(float DeltaTime)
 			bCanJump = false;
 		}
 	}
+}
+
+void AGCBaseCharacter::RestoreFullStamina()
+{
+	CurrentStamina = MaxStamina;
+}
+
+void AGCBaseCharacter::AddHealth(float Health)
+{
+	CharacterAttributesComponent->AddHealth(Health);
 }
 
 void AGCBaseCharacter::StartFire()
@@ -634,6 +648,39 @@ void AGCBaseCharacter::Interact()
 void AGCBaseCharacter::AddEquipmentItem(const TSubclassOf<class AEquipableItem> EquipableItemClass)
 {
 	CharacterEquipmentComponent->AddEquipmentItem(EquipableItemClass);
+}
+
+bool AGCBaseCharacter::PickupItem(TWeakObjectPtr<UInventoryItem> ItemToPickup)
+{
+	bool Result = false;
+	if (CharacterInventoryComponent->HasFreeSlot())
+	{
+		CharacterInventoryComponent->AddItem(ItemToPickup, 1);
+		Result = true;
+	}
+	return Result;
+}
+
+void AGCBaseCharacter::UseInventory(APlayerController* PlayerController)
+{
+	if (!IsValid(PlayerController))
+	{
+		return;
+	}
+	if (!CharacterInventoryComponent->IsViewVisible())
+	{
+		CharacterInventoryComponent->OpenViewInventory(PlayerController);
+		//CharacterEquipmentComponent->OpenViewEquipment(PlayerController);
+		PlayerController->SetInputMode(FInputModeGameAndUI{});
+		PlayerController->bShowMouseCursor = true;
+	}
+	else
+	{
+		CharacterInventoryComponent->CloseViewInventory();
+		//CharacterEquipmentComponent->CloseViewEquipment();
+		PlayerController->SetInputMode(FInputModeGameOnly{});
+		PlayerController->bShowMouseCursor = false;
+	}
 }
 
 void AGCBaseCharacter::InitializeHealthProgress()
