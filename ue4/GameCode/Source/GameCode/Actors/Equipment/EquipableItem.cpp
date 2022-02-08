@@ -45,6 +45,16 @@ EReticleType AEquipableItem::GetReticleType() const
 	return ReticleType;
 }
 
+FName AEquipableItem::GetDataTableID() const
+{
+	return DataTableID;
+}
+
+bool AEquipableItem::IsSlotCompatible(EEquipmentSlots Slot)
+{
+	return CompatibleEquipmentSlots.Contains(Slot);
+}
+
 AGCBaseCharacter* AEquipableItem::GetCharacterOwner() const
 {
 	return CachedCharacterOwner.IsValid() ? CachedCharacterOwner.Get() : nullptr;

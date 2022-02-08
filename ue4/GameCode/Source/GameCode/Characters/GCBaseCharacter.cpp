@@ -645,11 +645,6 @@ void AGCBaseCharacter::Interact()
 	}
 }
 
-void AGCBaseCharacter::AddEquipmentItem(const TSubclassOf<class AEquipableItem> EquipableItemClass)
-{
-	CharacterEquipmentComponent->AddEquipmentItem(EquipableItemClass);
-}
-
 bool AGCBaseCharacter::PickupItem(TWeakObjectPtr<UInventoryItem> ItemToPickup)
 {
 	bool Result = false;
@@ -670,14 +665,14 @@ void AGCBaseCharacter::UseInventory(APlayerController* PlayerController)
 	if (!CharacterInventoryComponent->IsViewVisible())
 	{
 		CharacterInventoryComponent->OpenViewInventory(PlayerController);
-		//CharacterEquipmentComponent->OpenViewEquipment(PlayerController);
+		CharacterEquipmentComponent->OpenViewEquipment(PlayerController);
 		PlayerController->SetInputMode(FInputModeGameAndUI{});
 		PlayerController->bShowMouseCursor = true;
 	}
 	else
 	{
 		CharacterInventoryComponent->CloseViewInventory();
-		//CharacterEquipmentComponent->CloseViewEquipment();
+		CharacterEquipmentComponent->CloseViewEquipment();
 		PlayerController->SetInputMode(FInputModeGameOnly{});
 		PlayerController->bShowMouseCursor = false;
 	}

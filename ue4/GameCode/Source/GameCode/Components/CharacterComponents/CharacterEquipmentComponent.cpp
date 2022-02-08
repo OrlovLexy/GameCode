@@ -4,6 +4,7 @@
 #include "Actors/Equipment/Throwables/ThrowableItem.h"
 #include "Actors/Equipment/Weapons/MeleeWeaponItem.h"
 #include "Net/UnrealNetwork.h"
+#include "UI/Widget/Equipment/EquipmentViewWidget.h"
 
 UCharacterEquipmentComponent::UCharacterEquipmentComponent()
 {
@@ -165,20 +166,83 @@ void UCharacterEquipmentComponent::EquipPreviousItem()
 	}
 }
 
-void UCharacterEquipmentComponent::AddEquipmentItem(const TSubclassOf<AEquipableItem> EquipableItemClass)
+bool UCharacterEquipmentComponent::AddEquipmentItemToSlot(const TSubclassOf<AEquipableItem> EquipableItemClass, int32 SlotIndex)
 {
-	ARangeWeaponItem* RangeWeaponObject = Cast<ARangeWeaponItem>(EquipableItemClass->GetDefaultObject());
-	if (!IsValid(RangeWeaponObject))
+	if (!IsValid(EquipableItemClass))
 	{
-		return;
+		return false;
 	}
 
-	AmunitionArray[(uint32)RangeWeaponObject->GetAmmoType()] += RangeWeaponObject->GetMaxAmmo();
-	if (IsValid(CurrentEquipedWeapon))
+	AEquipableItem* DefaultItemObject = EquipableItemClass->GetDefaultObject<AEquipableItem>();
+	if (!DefaultItemObject->IsSlotCompatible((EEquipmentSlots)SlotIndex))
 	{
-		OnCurrentWeaponAmmoChanged(CurrentEquipedWeapon->GetAmmo());
+		return false;
+	}
+
+	if (!IsValid(ItemsArray[SlotIndex]))
+	{
+		AEquipableItem* Item = GetWorld()->SpawnActor<AEquipableItem>(EquipableItemClass);
+		Item->AttachToComponent(CachedBaseCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, Item->GetUnEquippedSocketName());
+		Item->SetOwner(CachedBaseCharacter.Get());
+		Item->UnEquip();
+		ItemsArray[SlotIndex] = Item;
+	}
+	else if (DefaultItemObject->IsA<ARangeWeaponItem>())
+	{
+		ARangeWeaponItem* RangeWeaponObject = StaticCast<ARangeWeaponItem*>(DefaultItemObject);
+		int32 AmmoSlotIndex = (int32)RangeWeaponObject->GetAmmoType();
+		AmunitionArray[SlotIndex] += RangeWeaponObject->GetMaxAmmo();
+	}
+
+	return true;
+}
+
+void UCharacterEquipmentComponent::RemoveItemFromSlot(int32 SlotIndex)
+{
+	if ((uint32)CurrentEquippedSlot == SlotIndex)
+	{
+		UnEquipCurrentItem();
+	}
+	ItemsArray[SlotIndex]->Destroy();
+	ItemsArray[SlotIndex] = nullptr;
+}
+
+void UCharacterEquipmentComponent::OpenViewEquipment(APlayerController* PlayerController)
+{
+	if (!IsValid(ViewWidget))
+	{
+		CreateViewWidget(PlayerController);
+	}
+
+	if (!ViewWidget->IsVisible())
+	{
+		ViewWidget->AddToViewport();
 	}
 }
+
+void UCharacterEquipmentComponent::CloseViewEquipment()
+{
+	if (ViewWidget->IsVisible())
+	{
+		ViewWidget->RemoveFromParent();
+	}
+}
+
+bool UCharacterEquipmentComponent::IsViewVisible() const
+{
+	bool Result = false;
+	if (IsValid(ViewWidget))
+	{
+		Result = ViewWidget->IsVisible();
+	}
+	return Result;
+}
+
+const TArray<AEquipableItem*>& UCharacterEquipmentComponent::GetItems() const
+{
+	return ItemsArray;
+}
+
 
 void UCharacterEquipmentComponent::BeginPlay()
 {
@@ -189,6 +253,19 @@ void UCharacterEquipmentComponent::BeginPlay()
 
 	CreateLoadout();
 	AutoEquip();
+}
+
+void UCharacterEquipmentComponent::CreateViewWidget(APlayerController* PlayerController)
+{
+	checkf(IsValid(ViewWidgetClass), TEXT("UCharacterEquipmentComponent::CreateViewWidget view widget class is not defined"));
+
+	if (!IsValid(PlayerController))
+	{
+		return;
+	}
+
+	ViewWidget = CreateWidget<UEquipmentViewWidget>(PlayerController, ViewWidgetClass);
+	ViewWidget->InitializeEquipmentWidget(this);
 }
 
 void UCharacterEquipmentComponent::Server_EquipItemInSlot_Implementation(EEquipmentSlots Slot)
@@ -227,11 +304,8 @@ void UCharacterEquipmentComponent::CreateLoadout()
 		{
 			continue;
 		}
-		AEquipableItem* Item = GetWorld()->SpawnActor<AEquipableItem>(ItemPair.Value);
-		Item->AttachToComponent(CachedBaseCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, Item->GetUnEquippedSocketName());
-		Item->SetOwner(CachedBaseCharacter.Get());
-		Item->UnEquip();
-		ItemsArray[(uint32)ItemPair.Key] = Item;
+
+		AddEquipmentItemToSlot(ItemPair.Value, (int32)ItemPair.Key);
 	}
 }
 

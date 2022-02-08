@@ -17,7 +17,7 @@ FWeaponTableRow* GCDataTableUtils::FindWeaponData(const FName WeaponID)
 }
 
 FItemTableRow* GCDataTableUtils::FindInventoryItemData(const FName ItemID)
-w{
+{
 	static const FString ContextString(TEXT("Find Item Data"));
 
 	UDataTable* InventoryItemDataTable = LoadObject<UDataTable>(nullptr, TEXT("/Game/GameCode/Core/Data/DataTables/DT_InventoryItemList.DT_InventoryItemList"));

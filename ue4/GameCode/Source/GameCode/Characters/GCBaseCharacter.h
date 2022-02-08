@@ -191,8 +191,6 @@ public:
 
 	void Interact();
 
-	void AddEquipmentItem(const TSubclassOf<class AEquipableItem> EquipableItemClass);
-
 	bool PickupItem(TWeakObjectPtr<UInventoryItem> ItemToPickup);
 	void UseInventory(APlayerController* PlayerController);
 

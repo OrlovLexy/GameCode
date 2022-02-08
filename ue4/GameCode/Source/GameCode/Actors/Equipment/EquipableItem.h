@@ -30,6 +30,10 @@ public:
 
 	virtual EReticleType GetReticleType() const;
 
+	FName GetDataTableID() const;
+
+	bool IsSlotCompatible(EEquipmentSlots Slot);
+
 protected:
 	UPROPERTY(BlueprintAssignable)
 	FOnEquipmentStateChanged OnEquipmentStateChanged;
@@ -45,6 +49,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipable item")
 	FName EquippedSocketName = NAME_None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipable item")
+	TArray<EEquipmentSlots> CompatibleEquipmentSlots;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Reticle")
 	EReticleType ReticleType = EReticleType::None;

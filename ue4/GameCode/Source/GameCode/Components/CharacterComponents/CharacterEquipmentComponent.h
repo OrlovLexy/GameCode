@@ -15,6 +15,7 @@ class ARangeWeaponItem;
 class AEquipableItem;
 class AThrowableItem;
 class AMeleeWeaponItem;
+class UEquipmentViewWidget;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GAMECODE_API UCharacterEquipmentComponent : public UActorComponent
 {
@@ -52,7 +53,14 @@ public:
 	void EquipNextItem();
 	void EquipPreviousItem();
 
-	void AddEquipmentItem(const TSubclassOf<AEquipableItem> EquipableItemClass);
+	bool AddEquipmentItemToSlot(const TSubclassOf<AEquipableItem> EquipableItemClass, int32 SlotIndex);
+	void RemoveItemFromSlot(int32 SlotIndex);
+
+	void OpenViewEquipment(APlayerController* PlayerController);
+	void CloseViewEquipment();
+	bool IsViewVisible() const;
+
+	const TArray<AEquipableItem*>& GetItems() const;
 
 protected:
 	virtual void BeginPlay();
@@ -68,6 +76,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loadout")
 	EEquipmentSlots AutoEquipItemInSlot = EEquipmentSlots::None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "View")
+	TSubclassOf<UEquipmentViewWidget> ViewWidgetClass;
+
+	void CreateViewWidget(APlayerController* PlayerController);
 
 private:
 	UFUNCTION(Server, Reliable)
@@ -119,4 +132,6 @@ private:
 	TWeakObjectPtr<class AGCBaseCharacter> CachedBaseCharacter;
 
 	FTimerHandle EquipTimer;
+
+	UEquipmentViewWidget* ViewWidget;
 };
