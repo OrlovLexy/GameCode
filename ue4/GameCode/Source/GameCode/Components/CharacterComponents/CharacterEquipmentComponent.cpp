@@ -5,6 +5,7 @@
 #include "Actors/Equipment/Weapons/MeleeWeaponItem.h"
 #include "Net/UnrealNetwork.h"
 #include "UI/Widget/Equipment/EquipmentViewWidget.h"
+#include "UI/Widget/Equipment/WeaponWheelWidget.h"
 
 UCharacterEquipmentComponent::UCharacterEquipmentComponent()
 {
@@ -138,6 +139,20 @@ void UCharacterEquipmentComponent::UnEquipCurrentItem()
 
 void UCharacterEquipmentComponent::EquipNextItem()
 {
+	if (CachedBaseCharacter->IsPlayerControlled())
+	{
+		if (IsSelectingWeapon())
+		{
+			WeaponWheelWidget->NextSegment();
+		}
+		else
+		{
+			APlayerController* PlayerController = CachedBaseCharacter->GetController<APlayerController>();
+			OpenWeaponWheel(PlayerController);
+		}
+		return;
+	}
+
 	uint32 CurrentSlotIndex = (uint32)CurrentEquippedSlot;
 	uint32 NextSlotIndex = NextItemsArraySlotIndex(CurrentSlotIndex);
 	while ((CurrentSlotIndex != NextSlotIndex && !IsValid(ItemsArray[NextSlotIndex]))
@@ -153,6 +168,20 @@ void UCharacterEquipmentComponent::EquipNextItem()
 
 void UCharacterEquipmentComponent::EquipPreviousItem()
 {
+	if (CachedBaseCharacter->IsPlayerControlled())
+	{
+		if (IsSelectingWeapon())
+		{
+			WeaponWheelWidget->PreviousSegment();
+		}
+		else
+		{
+			APlayerController* PlayerController = CachedBaseCharacter->GetController<APlayerController>();
+			OpenWeaponWheel(PlayerController);
+		}
+		return;
+	}
+
 	uint32 CurrentSlotIndex = (uint32)CurrentEquippedSlot;
 	uint32 PreviousSlotIndex = PreviousItemsArraySlotIndex(CurrentSlotIndex);
 	while ((CurrentSlotIndex != PreviousSlotIndex && !IsValid(ItemsArray[PreviousSlotIndex]))
@@ -211,7 +240,7 @@ void UCharacterEquipmentComponent::OpenViewEquipment(APlayerController* PlayerCo
 {
 	if (!IsValid(ViewWidget))
 	{
-		CreateViewWidget(PlayerController);
+		CreateEquipmentWidgets(PlayerController);
 	}
 
 	if (!ViewWidget->IsVisible())
@@ -238,6 +267,29 @@ bool UCharacterEquipmentComponent::IsViewVisible() const
 	return Result;
 }
 
+void UCharacterEquipmentComponent::OpenWeaponWheel(APlayerController* PlayerController)
+{
+	if (!IsValid(WeaponWheelWidget))
+	{
+		CreateEquipmentWidgets(PlayerController);
+	}
+
+	if (!WeaponWheelWidget->IsVisible())
+	{
+		WeaponWheelWidget->AddToViewport();
+	}
+}
+
+bool UCharacterEquipmentComponent::IsSelectingWeapon() const
+{
+	return IsValid(WeaponWheelWidget) && WeaponWheelWidget->IsVisible();
+}
+
+void UCharacterEquipmentComponent::ConfirmWeaponSelection() const
+{
+	WeaponWheelWidget->ConfirmSelection();
+}
+
 const TArray<AEquipableItem*>& UCharacterEquipmentComponent::GetItems() const
 {
 	return ItemsArray;
@@ -255,7 +307,7 @@ void UCharacterEquipmentComponent::BeginPlay()
 	AutoEquip();
 }
 
-void UCharacterEquipmentComponent::CreateViewWidget(APlayerController* PlayerController)
+void UCharacterEquipmentComponent::CreateEquipmentWidgets(APlayerController* PlayerController)
 {
 	checkf(IsValid(ViewWidgetClass), TEXT("UCharacterEquipmentComponent::CreateViewWidget view widget class is not defined"));
 
@@ -266,6 +318,9 @@ void UCharacterEquipmentComponent::CreateViewWidget(APlayerController* PlayerCon
 
 	ViewWidget = CreateWidget<UEquipmentViewWidget>(PlayerController, ViewWidgetClass);
 	ViewWidget->InitializeEquipmentWidget(this);
+
+	WeaponWheelWidget= CreateWidget<UWeaponWheelWidget>(PlayerController, WeaponWheelClass);
+	WeaponWheelWidget->InitializeWeaponWheelWidget(this);
 }
 
 void UCharacterEquipmentComponent::Server_EquipItemInSlot_Implementation(EEquipmentSlots Slot)

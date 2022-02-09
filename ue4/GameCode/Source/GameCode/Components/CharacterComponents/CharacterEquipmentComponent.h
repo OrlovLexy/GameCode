@@ -16,6 +16,7 @@ class AEquipableItem;
 class AThrowableItem;
 class AMeleeWeaponItem;
 class UEquipmentViewWidget;
+class UWeaponWheelWidget;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GAMECODE_API UCharacterEquipmentComponent : public UActorComponent
 {
@@ -60,6 +61,12 @@ public:
 	void CloseViewEquipment();
 	bool IsViewVisible() const;
 
+	void OpenWeaponWheel(APlayerController* PlayerController);
+
+	bool IsSelectingWeapon() const;
+	
+	void ConfirmWeaponSelection() const;
+
 	const TArray<AEquipableItem*>& GetItems() const;
 
 protected:
@@ -80,7 +87,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "View")
 	TSubclassOf<UEquipmentViewWidget> ViewWidgetClass;
 
-	void CreateViewWidget(APlayerController* PlayerController);
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "View")
+	TSubclassOf<UWeaponWheelWidget> WeaponWheelClass;
+
+	void CreateEquipmentWidgets(APlayerController* PlayerController);
 
 private:
 	UFUNCTION(Server, Reliable)
@@ -134,4 +144,5 @@ private:
 	FTimerHandle EquipTimer;
 
 	UEquipmentViewWidget* ViewWidget;
+	UWeaponWheelWidget* WeaponWheelWidget;
 };

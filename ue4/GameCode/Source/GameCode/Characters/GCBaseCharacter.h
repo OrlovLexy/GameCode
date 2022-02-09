@@ -88,6 +88,8 @@ public:
 	void RestoreFullStamina();
 	void AddHealth(float Health);
 
+	void ConfirmWeaponSelection();
+
 	void StartFire();
 	void StopFire();
 

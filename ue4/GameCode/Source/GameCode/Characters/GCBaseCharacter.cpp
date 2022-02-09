@@ -179,8 +179,26 @@ void AGCBaseCharacter::AddHealth(float Health)
 	CharacterAttributesComponent->AddHealth(Health);
 }
 
+void AGCBaseCharacter::ConfirmWeaponSelection()
+{
+	if (CharacterEquipmentComponent->IsSelectingWeapon())
+	{
+		CharacterEquipmentComponent->ConfirmWeaponSelection();
+	}
+}
+
 void AGCBaseCharacter::StartFire()
 {
+	if (CharacterEquipmentComponent->IsSelectingWeapon())
+	{
+		return;
+	}
+
+	if (CharacterInventoryComponent->IsViewVisible())
+	{
+		return;
+	}
+
 	if (CharacterEquipmentComponent->IsEquipping())
 	{
 		return;

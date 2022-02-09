@@ -74,6 +74,8 @@ private:
 
 	void UseInventory();
 
+	void ConfirmWeaponWheelSelection();
+
 	UPlayerHUDWidget* PlayerHUDWidget = nullptr;
 	UUserWidget* MainMenuWidget = nullptr;
 };

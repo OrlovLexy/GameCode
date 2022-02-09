@@ -142,6 +142,7 @@ void AGCPlayerController::SetupInputComponent()
 	InputComponent->BindAction("SecondaryMeleeAttack", EInputEvent::IE_Pressed, this, &AGCPlayerController::SecondaryMeleeAttack);
 	InputComponent->BindAction(ActionInteract, EInputEvent::IE_Pressed, this, &AGCPlayerController::Interact);
 	InputComponent->BindAction("UseInventory", EInputEvent::IE_Pressed, this, &AGCPlayerController::UseInventory);
+	InputComponent->BindAction("ConfirmWeaponWheelSelection", EInputEvent::IE_Pressed, this, &AGCPlayerController::ConfirmWeaponWheelSelection);
 	FInputActionBinding& ToggleMenuBinding = InputComponent->BindAction("ToggleMainMenu", EInputEvent::IE_Pressed, this, &AGCPlayerController::ToggleMainMenu);
 	ToggleMenuBinding.bExecuteWhenPaused = true;
 }
@@ -375,5 +376,13 @@ void AGCPlayerController::UseInventory()
 	if (CachedBaseCharacter.IsValid())
 	{
 		CachedBaseCharacter->UseInventory(this);
+	}
+}
+
+void AGCPlayerController::ConfirmWeaponWheelSelection()
+{
+	if (CachedBaseCharacter.IsValid())
+	{
+		CachedBaseCharacter->ConfirmWeaponSelection();
 	}
 }
