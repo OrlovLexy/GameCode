@@ -60,6 +60,11 @@ void AGCBaseCharacter::EndPlay(const EEndPlayReason::Type Reason)
 	Super::EndPlay(Reason);
 }
 
+void AGCBaseCharacter::OnLevelDeserialized_Implementation()
+{
+
+}
+
 void AGCBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

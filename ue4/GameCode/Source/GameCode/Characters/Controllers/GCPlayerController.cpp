@@ -7,6 +7,8 @@
 #include "Components/CharacterComponents/CharacterEquipmentComponent.h"
 #include "GameCodeTypes.h"
 #include "GameFramework/PlayerInput.h"
+#include "Subsystems/SaveSubsystem/SaveSubsystem.h"
+#include "Kismet/GameplayStatics.h"
 
 
 void AGCPlayerController::SetPawn(APawn* InPawn)
@@ -143,6 +145,8 @@ void AGCPlayerController::SetupInputComponent()
 	InputComponent->BindAction(ActionInteract, EInputEvent::IE_Pressed, this, &AGCPlayerController::Interact);
 	InputComponent->BindAction("UseInventory", EInputEvent::IE_Pressed, this, &AGCPlayerController::UseInventory);
 	InputComponent->BindAction("ConfirmWeaponWheelSelection", EInputEvent::IE_Pressed, this, &AGCPlayerController::ConfirmWeaponWheelSelection);
+	InputComponent->BindAction("QuickSaveGame", EInputEvent::IE_Pressed, this, &AGCPlayerController::QuickSaveGame);
+	InputComponent->BindAction("QuickLoadGame", EInputEvent::IE_Pressed, this, &AGCPlayerController::QuickLoadGame);
 	FInputActionBinding& ToggleMenuBinding = InputComponent->BindAction("ToggleMainMenu", EInputEvent::IE_Pressed, this, &AGCPlayerController::ToggleMainMenu);
 	ToggleMenuBinding.bExecuteWhenPaused = true;
 }
@@ -385,4 +389,16 @@ void AGCPlayerController::ConfirmWeaponWheelSelection()
 	{
 		CachedBaseCharacter->ConfirmWeaponSelection();
 	}
+}
+
+void AGCPlayerController::QuickSaveGame()
+{
+	USaveSubsystem* SaveSubsystem = UGameplayStatics::GetGameInstance(GetWorld())->GetSubsystem<USaveSubsystem>();
+	SaveSubsystem->SaveGame();
+}
+
+void AGCPlayerController::QuickLoadGame()
+{
+	USaveSubsystem* SaveSubsystem = UGameplayStatics::GetGameInstance(GetWorld())->GetSubsystem<USaveSubsystem>();
+	SaveSubsystem->LoadLastGame();
 }

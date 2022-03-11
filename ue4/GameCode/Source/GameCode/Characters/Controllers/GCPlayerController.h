@@ -76,6 +76,9 @@ private:
 
 	void ConfirmWeaponWheelSelection();
 
+	void QuickSaveGame();
+	void QuickLoadGame();
+
 	UPlayerHUDWidget* PlayerHUDWidget = nullptr;
 	UUserWidget* MainMenuWidget = nullptr;
 };

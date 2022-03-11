@@ -5,6 +5,7 @@
 #include "GameCodeTypes.h"
 #include "GenericTeamAgentInterface.h"
 #include "UObject/ScriptInterface.h"
+#include "Subsystems/SaveSubsystem/SaveSubsystemInterface.h"
 #include "GCBaseCharacter.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAimingStateChanged, bool)
@@ -53,7 +54,7 @@ struct FMantlingSettings
 };
 
 UCLASS(Abstract, NotBlueprintable)
-class GAMECODE_API AGCBaseCharacter : public ACharacter, public IGenericTeamAgentInterface
+class GAMECODE_API AGCBaseCharacter : public ACharacter, public IGenericTeamAgentInterface, public ISaveSubsystemInterface
 {
 	GENERATED_BODY()
 
@@ -63,6 +64,10 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void EndPlay(const EEndPlayReason::Type Reason) override;
+
+	//@ ISaveSubsystemInterface
+	virtual void OnLevelDeserialized_Implementation() override;
+	//~ ISaveSubsystemInterface
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
