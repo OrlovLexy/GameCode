@@ -296,6 +296,11 @@ const TArray<AEquipableItem*>& UCharacterEquipmentComponent::GetItems() const
 }
 
 
+void UCharacterEquipmentComponent::OnLevelDeserialized_Implementation()
+{
+	EquipItemInSlot(CurrentEquippedSlot);
+}
+
 void UCharacterEquipmentComponent::BeginPlay()
 {
 	Super::BeginPlay();

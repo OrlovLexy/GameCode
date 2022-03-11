@@ -91,6 +91,11 @@ void UCharacterAttributeComponent::TickComponent(float DeltaTime, ELevelTick Tic
 #endif
 }
 
+void UCharacterAttributeComponent::OnLevelDeserialized_Implementation()
+{
+	OnHealthChanged();
+}
+
 float UCharacterAttributeComponent::GetHealthPercent() const
 {
 	return Health / MaxHealth;

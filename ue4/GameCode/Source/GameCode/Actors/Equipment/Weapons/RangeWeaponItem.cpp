@@ -166,6 +166,15 @@ EReticleType ARangeWeaponItem::GetReticleType() const
 	return bIsAiming ? AimReticleType : ReticleType;
 }
 
+void ARangeWeaponItem::OnLevelDeserialized_Implementation()
+{
+	SetActorRelativeTransform(FTransform(FRotator::ZeroRotator, FVector::ZeroVector));
+	if (OnAmmoChanged.IsBound())
+	{
+		OnAmmoChanged.Broadcast(Ammo);
+	}
+}
+
 void ARangeWeaponItem::BeginPlay()
 {
 	Super::BeginPlay();

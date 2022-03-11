@@ -2,13 +2,14 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Subsystems/SaveSubsystem/SaveSubsystemInterface.h"
 #include "CharacterAttributeComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnDeathEventSignature);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class GAMECODE_API UCharacterAttributeComponent : public UActorComponent
+class GAMECODE_API UCharacterAttributeComponent : public UActorComponent, public ISaveSubsystemInterface
 {
 	GENERATED_BODY()
 
@@ -18,6 +19,8 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	virtual void OnLevelDeserialized_Implementation() override;
 
 	FOnDeathEventSignature OnDeathEvent;
 	FOnHealthChanged OnHealthChangedEvent;
@@ -35,7 +38,7 @@ protected:
 	float MaxHealth = 100.0f;
 
 private:
-	UPROPERTY(ReplicatedUsing = OnRep_Health)
+	UPROPERTY(ReplicatedUsing = OnRep_Health, SaveGame)
 	float Health = 0.0f;
 
 	UFUNCTION()

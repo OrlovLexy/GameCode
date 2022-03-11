@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameCodeTypes.h"
+#include "Subsystems/SaveSubsystem/SaveSubsystemInterface.h"
 #include "CharacterEquipmentComponent.generated.h"
 
 typedef TArray<class AEquipableItem*, TInlineAllocator<(uint32)EEquipmentSlots::MAX>> TItemsArray;
@@ -18,7 +19,7 @@ class AMeleeWeaponItem;
 class UEquipmentViewWidget;
 class UWeaponWheelWidget;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class GAMECODE_API UCharacterEquipmentComponent : public UActorComponent
+class GAMECODE_API UCharacterEquipmentComponent : public UActorComponent, public ISaveSubsystemInterface
 {
 	GENERATED_BODY()
 
@@ -69,6 +70,8 @@ public:
 
 	const TArray<AEquipableItem*>& GetItems() const;
 
+	virtual void OnLevelDeserialized_Implementation() override;
+
 protected:
 	virtual void BeginPlay();
 
@@ -96,10 +99,10 @@ private:
 	UFUNCTION(Server, Reliable)
 	void Server_EquipItemInSlot(EEquipmentSlots Slot);
 
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, SaveGame)
 	TArray<int32> AmunitionArray;
 
-	UPROPERTY(ReplicatedUsing = OnRep_ItemsArray)
+	UPROPERTY(ReplicatedUsing = OnRep_ItemsArray, SaveGame)
 	TArray<AEquipableItem*> ItemsArray;
 
 	UFUNCTION()
@@ -128,7 +131,7 @@ private:
 
 	EEquipmentSlots PreviousEquipedSlot;
 
-	UPROPERTY(ReplicatedUsing=OnRep_CurrentEquippedSlot)
+	UPROPERTY(ReplicatedUsing=OnRep_CurrentEquippedSlot, SaveGame)
 	EEquipmentSlots CurrentEquippedSlot;
 
 	UFUNCTION()
