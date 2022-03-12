@@ -5,7 +5,7 @@
 #include "SaveData.h"
 #include "SaveSubsystem.generated.h"
 
-
+class UStreamingLevelObserver;
 UCLASS()
 class GAMECODE_API USaveSubsystem : public UGameInstanceSubsystem
 {
@@ -25,10 +25,14 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
+	virtual UWorld* GetWorld() const override;
 	void SerializeLevel(const ULevel* Level, const ULevelStreaming* StreamingLevel = nullptr);
 	void DeserializeLevel(ULevel* Level, const ULevelStreaming* StreamingLevel = nullptr);
 
 private:
+	void CreateStreamingLevelObservers(UWorld* World);
+	void RemoveStreamingLevelObservers();
+
 	void SerializeGame();
 	void DeserializeGame();
 	void WriteSaveToFile();
@@ -40,6 +44,8 @@ private:
 	void OnActorSpawned(AActor* SpawnedActor);
 	void NotifyActorsAndComponents(AActor* Actor);
 
+	UPROPERTY(Transient)
+	TArray<UStreamingLevelObserver*> StreamingLevelObservers;
 
 	FGameSaveData GameSaveData;
 	FString SaveDirectoryName;
