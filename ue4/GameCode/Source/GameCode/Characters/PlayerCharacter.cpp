@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "Actors/Equipment/Weapons/RangeWeaponItem.h"
 #include "Components/CharacterComponents/CharacterEquipmentComponent.h"
+#include "Subsystems/Streaming/StreamingSubsystemUtils.h"
 
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer)
@@ -27,6 +28,12 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer) 
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
 
 	Team = ETeams::Player;
+}
+
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	UStreamingSubsystemUtils::CheckCharacterOverlapStreamingSubsystemVolume(this);
 }
 
 void APlayerCharacter::MoveForward(float Value)

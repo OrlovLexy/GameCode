@@ -48,4 +48,5 @@ protected:
 	virtual void OnStartAimingInternal() override;
 	virtual void OnStopAimingInternal() override;
 
+	virtual void BeginPlay() override;
 };
